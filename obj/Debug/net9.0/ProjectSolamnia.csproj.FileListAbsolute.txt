@@ -1,0 +1,15 @@
+C:\Users\Ahmet\Projects\ProjectSolamnia\ProjectSolamnia\obj\Debug\net9.0\ProjectSolamnia.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\Ahmet\Projects\ProjectSolamnia\ProjectSolamnia\obj\Debug\net9.0\ProjectSolamnia.AssemblyInfoInputs.cache
+C:\Users\Ahmet\Projects\ProjectSolamnia\ProjectSolamnia\obj\Debug\net9.0\ProjectSolamnia.AssemblyInfo.cs
+C:\Users\Ahmet\Projects\ProjectSolamnia\ProjectSolamnia\obj\Debug\net9.0\ProjectSolamnia.csproj.CoreCompileInputs.cache
+C:\Users\Ahmet\Projects\ProjectSolamnia\ProjectSolamnia\obj\Debug\net9.0\ProjectSolamnia.sourcelink.json
+C:\Users\Ahmet\Projects\ProjectSolamnia\ProjectSolamnia\bin\Debug\net9.0\ProjectSolamnia.exe
+C:\Users\Ahmet\Projects\ProjectSolamnia\ProjectSolamnia\bin\Debug\net9.0\ProjectSolamnia.deps.json
+C:\Users\Ahmet\Projects\ProjectSolamnia\ProjectSolamnia\bin\Debug\net9.0\ProjectSolamnia.runtimeconfig.json
+C:\Users\Ahmet\Projects\ProjectSolamnia\ProjectSolamnia\bin\Debug\net9.0\ProjectSolamnia.dll
+C:\Users\Ahmet\Projects\ProjectSolamnia\ProjectSolamnia\bin\Debug\net9.0\ProjectSolamnia.pdb
+C:\Users\Ahmet\Projects\ProjectSolamnia\ProjectSolamnia\obj\Debug\net9.0\ProjectSolamnia.dll
+C:\Users\Ahmet\Projects\ProjectSolamnia\ProjectSolamnia\obj\Debug\net9.0\refint\ProjectSolamnia.dll
+C:\Users\Ahmet\Projects\ProjectSolamnia\ProjectSolamnia\obj\Debug\net9.0\ProjectSolamnia.pdb
+C:\Users\Ahmet\Projects\ProjectSolamnia\ProjectSolamnia\obj\Debug\net9.0\ProjectSolamnia.genruntimeconfig.cache
+C:\Users\Ahmet\Projects\ProjectSolamnia\ProjectSolamnia\obj\Debug\net9.0\ref\ProjectSolamnia.dll

@@ -4,7 +4,6 @@ class Solamnia
 {
     public static void Main(string[] args)
     {
-        Console.WriteLine("Hello Hüseyin");
-         Console.WriteLine("Hello AHMET");
+        Console.WriteLine("Başka birşeyler");
     }
 }

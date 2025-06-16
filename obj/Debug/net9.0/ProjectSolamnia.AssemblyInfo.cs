@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("ProjectSolamnia")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+fc51e149dc73ff5290d974b5aac1a88d5826275f")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+e75acf6c7165d2a20f6a6fb961b9625c4568076c")]
 [assembly: System.Reflection.AssemblyProductAttribute("ProjectSolamnia")]
 [assembly: System.Reflection.AssemblyTitleAttribute("ProjectSolamnia")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

@@ -1,0 +1,26 @@
+# ProjectSolamnia Roadmap
+
+[x] 1. Database Tasarımı ve Oluşturulması
+    [x] Entity modelleri (Character, Trait, Holding vb.)
+    [x] DbContext ve migration işlemleri
+
+[ ] 2. Trait Ekleme/Güncelleme ve Kuralları
+    [x] Trait kategorileri (Personality, Education, Other)
+    [ ] Trait Kurallarının uygulanması (3 Personality, 1 Education zorunlu, Belirsiz miktarda other trait)
+
+[ ] 3. Karakter Ekleme/Güncelleme
+    [ ] Karakter ekleme Ve Güncelleme
+    [ ] Trait ataması
+    [ ] Durum takibi (Alive/MIA/KIA)
+
+[ ] 4. Holding  Sistemi
+    [ ] Holding modelleri
+    [ ] Holding Ekleme güncelleme ve belki çıkarma 
+    [ ] Karakterlerin Görev ve garnizonlarıyla ilişkilendirilmesi
+
+[ ] 5. Savaş Sistemi
+    [ ] Savaşın temel mekanikleri
+    [ ] Karakter kağıtlarının savaş sistemi üzerindeki etkileri
+    [ ] Traitleri ve kurallarını güncellemek
+    [ ] savaş sistemiyle birlikte güncellenen database'e yeni kumandan traitlerinin eklenmesi
+    [ ] Komutanların görev ve Savaş durumları

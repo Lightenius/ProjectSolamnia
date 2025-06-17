@@ -4,14 +4,16 @@
     [x] Entity modelleri (Character, Trait, Holding vb.)
     [x] DbContext ve migration işlemleri
 
-[ ] 2. Trait Ekleme/Güncelleme ve Kuralları
+[x] 2. Trait Ekleme/Güncelleme ve Kuralları
     [x] Trait kategorileri (Personality, Education, Other)
-    [ ] Trait Kurallarının uygulanması (3 Personality, 1 Education zorunlu, Belirsiz miktarda other trait)
+    [X] Trait Kurallarının uygulanması (3 Personality, 1 Education zorunlu, Belirsiz miktarda other trait)
 
 [ ] 3. Karakter Ekleme/Güncelleme
-    [ ] Karakter ekleme Ve Güncelleme
-    [ ] Trait ataması
-    [ ] Durum takibi (Alive/MIA/KIA)
+    [x] Karakter ekleme Ve Güncelleme
+    [X] Trait ataması
+    [ ]Karakte ve trait CRUD sistemleri bitirlecek
+    [x] Durum takibi (Alive/MIA/KIA)
+    [ ] Traitlerin karakterlere verdiği bonuslar ayarlanacak
 
 [ ] 4. Holding  Sistemi
     [ ] Holding modelleri

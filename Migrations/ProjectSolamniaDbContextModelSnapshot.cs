@@ -22,19 +22,48 @@ namespace ProjectSolamnia.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
+                    b.Property<string>("Activeduty")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("Age")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int?>("AssignedHoldingId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("Diplomacy")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("Intigue")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("Learning")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("Martial")
+                        .HasColumnType("INTEGER");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("TEXT");
+
+                    b.Property<int>("Prowess")
+                        .HasColumnType("INTEGER");
 
                     b.Property<string>("Rank")
                         .IsRequired()
                         .HasColumnType("TEXT");
 
-                    b.Property<string>("Status")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
+                    b.Property<int>("Status")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("Stewardship")
+                        .HasColumnType("INTEGER");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("AssignedHoldingId");
 
                     b.ToTable("Characters");
                 });
@@ -54,6 +83,21 @@ namespace ProjectSolamnia.Migrations
                     b.ToTable("CharacterTraits");
                 });
 
+            modelBuilder.Entity("ProjectSolamnia.Holding", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Holding");
+                });
+
             modelBuilder.Entity("ProjectSolamnia.Trait", b =>
                 {
                     b.Property<int>("Id")
@@ -61,9 +105,6 @@ namespace ProjectSolamnia.Migrations
                         .HasColumnType("INTEGER");
 
                     b.Property<string>("Description")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("ExclusiveGroup")
                         .HasColumnType("TEXT");
 
                     b.Property<string>("ImageUrl")
@@ -81,6 +122,30 @@ namespace ProjectSolamnia.Migrations
                     b.ToTable("Traits");
                 });
 
+            modelBuilder.Entity("ProjectSolamnia.TraitExclusive", b =>
+                {
+                    b.Property<int>("TraitId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("ExclusiveWithTraitId")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("TraitId", "ExclusiveWithTraitId");
+
+                    b.HasIndex("ExclusiveWithTraitId");
+
+                    b.ToTable("TraitExclusives");
+                });
+
+            modelBuilder.Entity("ProjectSolamnia.Character", b =>
+                {
+                    b.HasOne("ProjectSolamnia.Holding", "AssignedHolding")
+                        .WithMany()
+                        .HasForeignKey("AssignedHoldingId");
+
+                    b.Navigation("AssignedHolding");
+                });
+
             modelBuilder.Entity("ProjectSolamnia.CharacterTrait", b =>
                 {
                     b.HasOne("ProjectSolamnia.Character", "Character")
@@ -92,10 +157,29 @@ namespace ProjectSolamnia.Migrations
                     b.HasOne("ProjectSolamnia.Trait", "Trait")
                         .WithMany("CharacterTraits")
                         .HasForeignKey("TraitId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("Character");
+
+                    b.Navigation("Trait");
+                });
+
+            modelBuilder.Entity("ProjectSolamnia.TraitExclusive", b =>
+                {
+                    b.HasOne("ProjectSolamnia.Trait", "ExclusiveWithTrait")
+                        .WithMany()
+                        .HasForeignKey("ExclusiveWithTraitId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("ProjectSolamnia.Trait", "Trait")
+                        .WithMany("ExclusiveWithTraits")
+                        .HasForeignKey("TraitId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("ExclusiveWithTrait");
 
                     b.Navigation("Trait");
                 });
@@ -108,6 +192,8 @@ namespace ProjectSolamnia.Migrations
             modelBuilder.Entity("ProjectSolamnia.Trait", b =>
                 {
                     b.Navigation("CharacterTraits");
+
+                    b.Navigation("ExclusiveWithTraits");
                 });
 #pragma warning restore 612, 618
         }

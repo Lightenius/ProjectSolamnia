@@ -13,6 +13,7 @@ namespace ProjectSolamnia
         public DbSet<Trait> Traits { get; set; }
         public DbSet<CharacterTrait> CharacterTraits { get; set; }
         public DbSet<TraitExclusive> TraitExclusives{ get; set; }
+        public DbSet<Holding> Holdings { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -31,8 +32,6 @@ namespace ProjectSolamnia
                 .HasForeignKey(ct => ct.TraitId)   //galiba tablolar arası iletişimi sağlıyor ama emin değilim
                 .OnDelete(DeleteBehavior.Restrict);
 
-            //buradan sonrası exclusive traitlerle alakalı
-
 
             modelBuilder.Entity<TraitExclusive>()
                 .HasKey(te => new { te.TraitId, te.ExclusiveWithTraitId });
@@ -48,6 +47,18 @@ namespace ProjectSolamnia
                 .WithMany()
                 .HasForeignKey(te => te.ExclusiveWithTraitId)
                 .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Holding>()
+                .Property(h => h.Type)
+                .HasConversion<string>();
+
+            modelBuilder.Entity<Holding>()
+                .HasMany(h => h.AssignedCharacters)
+                .WithOne(c => c.AssignedHolding)
+                .HasForeignKey(c => c.AssignedHoldingId)
+                .OnDelete(DeleteBehavior.SetNull);
+
+
         }
     }
 

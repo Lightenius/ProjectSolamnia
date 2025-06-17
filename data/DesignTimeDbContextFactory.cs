@@ -7,7 +7,7 @@ public class DesignTimeDbContextFactory : IDesignTimeDbContextFactory<ProjectSol
     public ProjectSolamniaDbContext CreateDbContext(string[] args)
     {
         var optionsBuilder = new DbContextOptionsBuilder<ProjectSolamniaDbContext>();
-        optionsBuilder.UseSqlite("Data Source=projectsolamnia.db");
+        optionsBuilder.UseSqlite("Data Source=data/projectsolamnia.db");
 
         return new ProjectSolamniaDbContext(optionsBuilder.Options);
     }

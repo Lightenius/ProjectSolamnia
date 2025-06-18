@@ -11,61 +11,29 @@ namespace ProjectSolamnia
 
         public DbSet<Character> Characters { get; set; }
         public DbSet<Trait> Traits { get; set; }
-        public DbSet<CharacterTrait> CharacterTraits { get; set; }
-        public DbSet<TraitExclusive> TraitExclusives{ get; set; }
         public DbSet<Holding> Holdings { get; set; }
+
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<CharacterTrait>()
-                .HasKey(ct => new { ct.CharacterId, ct.TraitId }); // aynı karakterin aynı Id almasını engelliyor
 
-            modelBuilder.Entity<CharacterTrait>()
-                .HasOne(ct => ct.Character)
-                .WithMany(c => c.CharacterTraits)
-                .HasForeignKey(ct => ct.CharacterId)
-                .OnDelete(DeleteBehavior.Cascade);
+            modelBuilder.Entity<Character>().ToTable("Characters");
+            modelBuilder.Entity<Trait>().ToTable("Traits");
+            modelBuilder.Entity<Holding>().ToTable("Holdings");
 
-            modelBuilder.Entity<CharacterTrait>()
-                .HasOne(ct => ct.Trait)               // her karakterin sadece kendisine ait bir CharacterTraiti olduğunu söylüyor
-                .WithMany(t => t.CharacterTraits)    // her bir Charactertraitin pek çok trait taşıyabileceğini söylüyor
-                .HasForeignKey(ct => ct.TraitId)   //galiba tablolar arası iletişimi sağlıyor ama emin değilim
-                .OnDelete(DeleteBehavior.Restrict);
-
-
-            modelBuilder.Entity<TraitExclusive>()
-                .HasKey(te => new { te.TraitId, te.ExclusiveWithTraitId });
-
-            modelBuilder.Entity<TraitExclusive>()
-                .HasOne(te => te.Trait)
-                .WithMany(t => t.ExclusiveWithTraits)
-                .HasForeignKey(te => te.TraitId)
-                .OnDelete(DeleteBehavior.Restrict);
-
-            modelBuilder.Entity<TraitExclusive>()
-                .HasOne(te => te.ExclusiveWithTrait)
-                .WithMany()
-                .HasForeignKey(te => te.ExclusiveWithTraitId)
-                .OnDelete(DeleteBehavior.Restrict);
-
-            modelBuilder.Entity<Holding>()
-                .Property(h => h.Type)
-                .HasConversion<string>();
-
-            modelBuilder.Entity<Holding>()
-                .HasMany(h => h.AssignedCharacters)
-                .WithOne(c => c.AssignedHolding)
-                .HasForeignKey(c => c.AssignedHoldingId)
-                .OnDelete(DeleteBehavior.SetNull);
-
-            modelBuilder.Entity<Character>()
-                .HasOne(c => c.AssignedHolding)
-                .WithMany(h => h.AssignedCharacters)
-                .HasForeignKey(c => c.AssignedHoldingId)
-                .OnDelete(DeleteBehavior.SetNull); 
+        }
 
 
 
+        public Character? getCharacter(int Id)
+        {
+            return Characters.FirstOrDefault(c => c.Id == Id);
+        }
+
+        public void addCharacter(Character c)
+        {
+            Characters.Add(c);
+            SaveChanges();
         }
     }
 

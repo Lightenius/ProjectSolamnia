@@ -14,7 +14,7 @@ namespace ProjectSolamnia
         public StatusType Status { get; set; }
 
         public int? AssignedHoldingId { get; set; }
-        public Holding? AssignedHolding { get; set; }
+        //public Holding? AssignedHolding { get; set; }
         public string ActiveDuty { get; set; }
 
         public int Diplomacy { get; set; }
@@ -24,9 +24,8 @@ namespace ProjectSolamnia
         public int Learning { get; set; }
         public int Prowess { get; set; }
 
-        public ArrayList Traits; // constructorda initialize edilecek.
-
-
+        
+        
 
 
 
@@ -36,9 +35,9 @@ namespace ProjectSolamnia
         Character hüsü = new Character(id,name,age,rank,status,assignedHoldingId,assignedHolding,activeDuty,diplomacy,martial,stewardship,intrigue,learning,prowess, new Trait[]{trait1, trait2});
         */
         public Character(int id, string name, int age, string rank, StatusType status,
-                        int? assignedHoldingId, Holding? assignedHolding, string activeDuty,
+                        int? assignedHoldingId, string activeDuty,
                         int diplomacy, int martial, int stewardship, int intrigue,
-                        int learning, int prowess, Trait[] traits)
+                        int learning, int prowess)
         {
             Id = id;
             Name = name;
@@ -46,8 +45,8 @@ namespace ProjectSolamnia
             Rank = rank;
             Status = status;
             AssignedHoldingId = assignedHoldingId;
-            AssignedHolding = assignedHolding;
-            Activeduty = activeDuty;
+            //AssignedHolding = assignedHolding;
+            ActiveDuty = activeDuty;
             Diplomacy = diplomacy;
             Martial = martial;
             Stewardship = stewardship;
@@ -55,10 +54,7 @@ namespace ProjectSolamnia
             Learning = learning;
             Prowess = prowess;
 
-            Traits = new ArrayList(new Trait[] { });
-            foreach (Trait t in traits) {
-                addTrait(t);
-            }
+
         }
 
 
@@ -67,15 +63,15 @@ namespace ProjectSolamnia
             addTrait ( @param eklenecek trait objesi ) karaktere yeni bir trait ekler.
             removeTrait ( @param çıkarılacak trait objesi ) karakterin traitlerinden birini çıkarır.
         */
-        public void addTrait(Trait t)
-        {
-            Traits.Add(t);
-        }
-
-        public void removeTrait(Trait t)
-        {
-            Traits.Remove(t);
-        }
+        //public void addTrait(Trait t)
+        //{
+        //    Traits.Add(t);
+        //}
+//
+        //public void removeTrait(Trait t)
+        //{
+        //    Traits.Remove(t);
+        //}
         
 
 

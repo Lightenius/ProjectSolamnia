@@ -3,7 +3,7 @@ using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using ProjectSolamnia;
 
-namespace ProjectSolamnia {}
+namespace ProjectSolamnia;
 
 //buraya karakter yaratımı kurallarını yazacağım
 // burada new character ve update character yazmaktadır
@@ -11,7 +11,7 @@ namespace ProjectSolamnia {}
 public class CharacterService
 {
     private readonly ProjectSolamniaDbContext _dbContext;
-    private readonly TraitService _traitService;
+    private readonly TraitService _traitService; // NOTE: Neden readonly olduklarını anlamadım  -Ahmet
 
     public CharacterService(ProjectSolamniaDbContext dbContext, TraitService traitService)
     {
@@ -95,54 +95,66 @@ public class EffectiveAttributeCalculator
     public static int EffectiveDiplomacy(Character character)
     {
         int baseValue = character.Diplomacy;
-        int bonus = character.CharacterTraits
-            .Select(ct => ct.Trait.BonusDiplomacy)
-            .Sum();
+        int bonus = 0;
+        foreach (Trait t in character.Traits)
+        {
+            bonus += t.BonusDiplomacy;
+        }
 
         return baseValue + bonus;
     }
     public static int EffectiveMartial(Character character)
     {
         int baseValue = character.Martial;
-        int bonus = character.CharacterTraits
-            .Select(ct => ct.Trait.BonusMartial)
-            .Sum();
+        int bonus = 0;
+        foreach (Trait t in character.Traits)
+        {
+            bonus += t.BonusMartial;
+        }
 
         return baseValue + bonus;
     }
     public static int EffectiveStewardship(Character character)
     {
         int baseValue = character.Stewardship;
-        int bonus = character.CharacterTraits
-            .Select(ct => ct.Trait.BonusStewardship)
-            .Sum();
+        int bonus = 0;
+        foreach (Trait t in character.Traits)
+        {
+            bonus += t.BonusStewardship;
+        }
 
         return baseValue + bonus;
     }
     public static int EffectiveIntrigue(Character character)
     {
         int baseValue = character.Intrigue;
-        int bonus = character.CharacterTraits
-            .Select(ct => ct.Trait.BonusIntrigue)
-            .Sum();
+        int bonus = 0;
+        foreach (Trait t in character.Traits)
+        {
+            bonus += t.BonusIntrigue;
+        }
 
         return baseValue + bonus;
     }
     public static int EffectiveLearning(Character character)
     {
         int baseValue = character.Learning;
-        int bonus = character.CharacterTraits
-            .Select(ct => ct.Trait.BonusLearning)
-            .Sum();
+        int bonus = 0;
+        foreach (Trait t in character.Traits)
+        {
+            bonus += t.BonusLearning;
+        }
 
         return baseValue + bonus;
     }
     public static int EffectiveProwess(Character character)
     {
         int baseValue = character.Prowess;
-        int bonus = character.CharacterTraits
-            .Select(ct => ct.Trait.BonusProwess)
-            .Sum();
+        int bonus = 0;
+        foreach (Trait t in character.Traits)
+        {
+            bonus += t.BonusProwess;
+        }
 
         return baseValue + bonus;
     }

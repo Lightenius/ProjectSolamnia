@@ -1,7 +1,7 @@
 
 using ProjectSolamnia;
 
-namespace ProjectSolamnia{}
+namespace ProjectSolamnia;
 //buraya trait yaratımı kurallarını yazacağım
 
 public class TraitService
@@ -22,7 +22,7 @@ public class TraitService
         var educationCount = traits.Count(t => t.Type == TraitType.Education);
         if (educationCount != 1)
         {
-            errorMessage = "A character must have 1 Education traits.";
+            errorMessage = "A character must have 1 Education trait.";
             return false;
         }
         foreach (var trait in traits)

@@ -9,7 +9,7 @@ namespace ProjectSolamnia
         public HoldingType Type { get; set; }
         public string? Region { get; set; }
         public string? Description { get; set; }
-        public string? Supplies { get; set; }
+        public SupplyLevel SupplyLevel { get; set; }
         public int? TroopsCount { get; set; }
 
         public ICollection<Character> AssignedCharacters { get; set; } = new List<Character>();

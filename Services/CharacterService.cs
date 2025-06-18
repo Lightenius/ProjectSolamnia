@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Identity.Client;
 using ProjectSolamnia;
 
 namespace ProjectSolamnia {}
@@ -21,9 +20,10 @@ public class CharacterService
     }
     public bool UpdateCharacter(Character character, List<int> traidIds, out string errorMessage)
     {
-        errorMessage = "NO";
+        errorMessage = "";
 
         var traits = _dbContext.Traits
+        .Include(t => t.ExclusiveWithTraits)
         .Where(t => traidIds.Contains(t.Id))       //traitleri DB'den çekme
         .ToList();
 
@@ -53,12 +53,14 @@ public class CharacterService
             existingCharacter.Age = character.Age;
             existingCharacter.Rank = character.Rank;
             existingCharacter.Status = character.Status;
-            existingCharacter.AssignedHolding = character.AssignedHolding;
+            existingCharacter.AssignedHoldingId = character.AssignedHoldingId;
             existingCharacter.Activeduty = character.Activeduty;
+
+            //Sadece base statları değiştiriyor
             existingCharacter.Diplomacy = character.Diplomacy;
             existingCharacter.Martial = character.Martial;
             existingCharacter.Stewardship = character.Stewardship;
-            existingCharacter.Intigue = character.Intigue;
+            existingCharacter.Intrigue = character.Intrigue;
             existingCharacter.Learning = character.Learning;
             existingCharacter.Prowess = character.Prowess;
         }
@@ -84,4 +86,65 @@ public class CharacterService
         _dbContext.SaveChanges();
         return true;
     }
+}
+
+//Efektif karakter attributelarını belirleyen komut
+//base statlarla trait bonuslarını birleştirir
+public class EffectiveAttributeCalculator
+{
+    public static int EffectiveDiplomacy(Character character)
+    {
+        int baseValue = character.Diplomacy;
+        int bonus = character.CharacterTraits
+            .Select(ct => ct.Trait.BonusDiplomacy)
+            .Sum();
+
+        return baseValue + bonus;
+    }
+    public static int EffectiveMartial(Character character)
+    {
+        int baseValue = character.Martial;
+        int bonus = character.CharacterTraits
+            .Select(ct => ct.Trait.BonusMartial)
+            .Sum();
+
+        return baseValue + bonus;
+    }
+    public static int EffectiveStewardship(Character character)
+    {
+        int baseValue = character.Stewardship;
+        int bonus = character.CharacterTraits
+            .Select(ct => ct.Trait.BonusStewardship)
+            .Sum();
+
+        return baseValue + bonus;
+    }
+    public static int EffectiveIntrigue(Character character)
+    {
+        int baseValue = character.Intrigue;
+        int bonus = character.CharacterTraits
+            .Select(ct => ct.Trait.BonusIntrigue)
+            .Sum();
+
+        return baseValue + bonus;
+    }
+    public static int EffectiveLearning(Character character)
+    {
+        int baseValue = character.Learning;
+        int bonus = character.CharacterTraits
+            .Select(ct => ct.Trait.BonusLearning)
+            .Sum();
+
+        return baseValue + bonus;
+    }
+    public static int EffectiveProwess(Character character)
+    {
+        int baseValue = character.Prowess;
+        int bonus = character.CharacterTraits
+            .Select(ct => ct.Trait.BonusProwess)
+            .Sum();
+
+        return baseValue + bonus;
+    }
+    
 }

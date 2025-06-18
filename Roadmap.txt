@@ -1,28 +1,31 @@
-# ProjectSolamnia Roadmap
-
 [x] 1. Database Tasarımı ve Oluşturulması
-    [x] Entity modelleri (Character, Trait, Holding vb.)
-    [x] DbContext ve migration işlemleri
+ [x] Entity modelleri (Character, Trait, Holding vb.) detaylı tasarımı
+ [x] DbContext yapılandırması ve migration işlemleri
+ [x] Veritabanı ilişkilerinin (özellikle Character-Trait many-to-many) sağlanması
 
-[x] 2. Trait Ekleme/Güncelleme ve Kuralları
-    [x] Trait kategorileri (Personality, Education, Other)
-    [X] Trait Kurallarının uygulanması (3 Personality, 1 Education zorunlu, Belirsiz miktarda other trait)
+[x] 2. Trait Ekleme/Güncelleme ve Kurallarının Uygulanması
+ [x] Trait kategorilerinin (Personality, Education, Other) tanımlanması
+ [x] Trait kurallarının backend üzerinde doğrulanması (3 Personality, 1 Education zorunlu, Other sınırsız)
+ [x] Trait uyumsuzluk ve kısıtlama kontrollerinin yapılması
+ [x] Traitlerin karakter statlarına etkilerinin backend’de hesaplanması ve uygulanması
 
-[ ] 3. Karakter Ekleme/Güncelleme
-    [x] Karakter ekleme Ve Güncelleme
-    [X] Trait ataması
-    [ ]Karakte ve trait CRUD sistemleri bitirlecek
-    [x] Durum takibi (Alive/MIA/KIA)
-    [ ] Traitlerin karakterlere verdiği bonuslar ayarlanacak
+[-] 3. Karakter Ekleme/Güncelleme ve Yönetimi
+ [-] Karakter CRUD işlemlerinin backend’de tamamlanması
+ [-] Trait atama ve güncelleme mekanizmasının kurallara uygun hale getirilmesi
+ [x] Karakter durumlarının (Alive, MIA, KIA vb.) takip edilmesi ve veri tutarlılığının sağlanması
+ [-] Trait bonuslarının karakterlere doğru yansıtılması
+ [-] Karakterlerin görevler ve holdinglerle ilişkilendirilmesi (görevler backend’de yok, holdingler var)
 
-[ ] 4. Holding  Sistemi
-    [ ] Holding modelleri
-    [ ] Holding Ekleme güncelleme ve belki çıkarma 
-    [ ] Karakterlerin Görev ve garnizonlarıyla ilişkilendirilmesi
+[-] 4. Holding Sistemi
+ [x] Holding modellerinin tasarlanması ve veritabanına eklenmesi
+ [-] Holding CRUD işlemlerinin backend’de tamamlanması
+ [-] Karakter-görev-garnizon ilişkilerinin kurulması (görev yok, garnizon modeli eksik)
+ [-] Holdinglerin savaş ve lojistik etkilerinin backend’de modellenmesi
 
-[ ] 5. Savaş Sistemi
-    [ ] Savaşın temel mekanikleri
-    [ ] Karakter kağıtlarının savaş sistemi üzerindeki etkileri
-    [ ] Traitleri ve kurallarını güncellemek
-    [ ] savaş sistemiyle birlikte güncellenen database'e yeni kumandan traitlerinin eklenmesi
-    [ ] Komutanların görev ve Savaş durumları
+[ ] 5. Savaş Sistemi (proje bittikten sonra bakılacak)
+ [ ] Savaş mekaniklerinin backend’de temel düzeyde kurgulanması
+ [ ] Yeni kumandan traitlerinin eklenmesi
+ [ ] Karakter traitlerinin ve statlarının savaş üzerindeki etkilerinin modellenmesi
+ [ ] Yeni kumandan traitlerinin savaş sistemiyle entegre edilmesi
+ [ ] Komutanların görev ve savaş durumlarının backend tarafından takip edilmesi
+ [ ] Savaş sonrası veritabanı güncellemelerinin sağlanması

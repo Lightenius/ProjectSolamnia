@@ -58,6 +58,13 @@ namespace ProjectSolamnia
                 .HasForeignKey(c => c.AssignedHoldingId)
                 .OnDelete(DeleteBehavior.SetNull);
 
+            modelBuilder.Entity<Character>()
+                .HasOne(c => c.AssignedHolding)
+                .WithMany(h => h.AssignedCharacters)
+                .HasForeignKey(c => c.AssignedHoldingId)
+                .OnDelete(DeleteBehavior.SetNull); 
+
+
 
         }
     }

@@ -16,7 +16,7 @@ namespace ProjectSolamnia{
         public int Diplomacy { get; set; }
         public int Martial { get; set; }
         public int Stewardship { get; set; }
-        public int Intigue { get; set; }
+        public int Intrigue { get; set; }
         public int Learning { get; set; }
         public int Prowess { get; set; }
 

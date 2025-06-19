@@ -1,0 +1,47 @@
+CREATE TABLE Characters (
+    Id INTEGER PRIMARY KEY,
+    Name TEXT NOT NULL,
+    Age INTEGER NOT NULL,
+    Rank TEXT,
+    Status INTEGER NOT NULL,  -- Assuming StatusType is an enum stored as integer
+    AssignedHoldingId INTEGER,  -- Nullable foreign key
+    Activeduty TEXT,
+    Diplomacy INTEGER NOT NULL,
+    Martial INTEGER NOT NULL,
+    Stewardship INTEGER NOT NULL,
+    Intrigue INTEGER NOT NULL,
+    Learning INTEGER NOT NULL,
+    Prowess INTEGER NOT NULL,
+    traits TEXT,
+);
+
+
+
+CREATE TABLE Traits (
+    Id INTEGER PRIMARY KEY,
+    Name TEXT NOT NULL,
+    Type INTEGER NOT NULL,  
+    Description TEXT,      
+    ImageUrl TEXT,         
+    
+    BonusDiplomacy INTEGER NOT NULL DEFAULT 0,
+    BonusMartial INTEGER NOT NULL DEFAULT 0,
+    BonusStewardship INTEGER NOT NULL DEFAULT 0,
+    BonusIntrigue INTEGER NOT NULL DEFAULT 0,
+    BonusLearning INTEGER NOT NULL DEFAULT 0,
+    BonusProwess INTEGER NOT NULL DEFAULT 0,
+
+    ExclusiveTraits TEXT
+);
+
+
+
+CREATE TABLE Holdings (
+    Id INTEGER PRIMARY KEY,
+    Name TEXT NOT NULL,
+    Type INTEGER NOT NULL,  -- Assuming HoldingType is an enum stored as integer
+    Region TEXT,           -- Nullable
+    Description TEXT,       -- Nullable
+    SupplyLevel INTEGER NOT NULL,  -- Assuming SupplyLevel is an enum
+    TroopsCount INTEGER     -- Nullable
+);

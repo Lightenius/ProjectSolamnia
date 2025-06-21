@@ -1,0 +1,142 @@
+@model IEnumerable<ProjectSolamnia.Trait>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Traits - Project Solamnia</title>
+    <style>
+        :root {
+            --primary: #4a6fa5;
+            --secondary: #166088;
+            --accent: #4fc3f7;
+            --background: #f8f9fa;
+            --card-bg: #ffffff;
+            --text: #333333;
+            --border-radius: 8px;
+            --box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--background);
+            color: var(--text);
+            padding: 20px;
+            margin: 0;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .trait-card {
+            background-color: var(--card-bg);
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            overflow: hidden;
+            margin-bottom: 20px;
+            display: flex;
+            flex-direction: row;
+            gap: 20px;
+            padding: 20px;
+        }
+
+        .trait-image {
+            flex: 0 0 120px;
+            height: 120px;
+            background-color: #ddd;
+            border-radius: var(--border-radius);
+            object-fit: cover;
+        }
+
+        .trait-details {
+            flex: 1;
+        }
+
+        .trait-title {
+            font-size: 1.5rem;
+            color: var(--primary);
+            margin: 0 0 10px;
+        }
+
+        .trait-type {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--secondary);
+            text-transform: uppercase;
+            margin-bottom: 10px;
+        }
+
+        .trait-description {
+            font-size: 0.95rem;
+            margin-bottom: 15px;
+        }
+
+        .bonus-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            font-size: 0.85rem;
+        }
+
+        .stat-bonus {
+            background-color: rgba(79, 195, 247, 0.1);
+            padding: 8px 10px;
+            border-radius: var(--border-radius);
+            text-align: center;
+        }
+
+        @media (max-width: 768px) {
+            .trait-card {
+                flex-direction: column;
+                align-items: center;
+                text-align: center;
+            }
+
+            .bonus-stats {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .trait-details {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 style="color: var(--primary); margin-bottom: 30px;">Trait List</h1>
+
+        @foreach (var trait in Model)
+        {
+            <div class="trait-card">
+                @if (!string.IsNullOrWhiteSpace(trait.ImageUrl))
+                {
+                    <img src="@trait.ImageUrl" alt="@trait.Name" class="trait-image" />
+                }
+                else
+                {
+                    <div class="trait-image" style="display: flex; align-items: center; justify-content: center;">No Image</div>
+                }
+
+                <div class="trait-details">
+                    <h2 class="trait-title">@trait.Name</h2>
+                    <div class="trait-type">@trait.Type</div>
+                    <p class="trait-description">@trait.Description</p>
+
+                    <div class="bonus-stats">
+                        <div class="stat-bonus">Diplomacy: @trait.BonusDiplomacy</div>
+                        <div class="stat-bonus">Martial: @trait.BonusMartial</div>
+                        <div class="stat-bonus">Stewardship: @trait.BonusStewardship</div>
+                        <div class="stat-bonus">Intrigue: @trait.BonusIntrigue</div>
+                        <div class="stat-bonus">Learning: @trait.BonusLearning</div>
+                        <div class="stat-bonus">Prowess: @trait.BonusProwess</div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</body>
+</html>

@@ -1,3 +1,4 @@
+using System.Text;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using ProjectSolamnia;
@@ -15,6 +16,12 @@ namespace ProjectSolamnia
 
         public static void Main(string[] args)
         {
+            if (args[0] == "-s")
+            {
+                Server.SolamniaServer.Run();
+            }
+
+            
             Console.WriteLine("Project Solamnia Console Application");
             Console.WriteLine("Press any key to start...");
             Console.ReadKey();

@@ -1,0 +1,222 @@
+@model ProjectSolamnia.Character
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@Model.Name - Character Profile</title>
+    <style>
+        :root {
+            --primary: #4a6fa5;
+            --secondary: #166088;
+            --accent: #4fc3f7;
+            --background: #f8f9fa;
+            --card-bg: #ffffff;
+            --text: #333333;
+            --border-radius: 8px;
+            --box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--background);
+            color: var(--text);
+            line-height: 1.6;
+            padding: 20px;
+            margin: 0;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .character-card {
+            background: var(--card-bg);
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+
+        .character-header {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .character-name {
+            font-size: 2rem;
+            margin: 0;
+            font-weight: 600;
+        }
+
+        .character-meta {
+            display: flex;
+            gap: 15px;
+            font-size: 0.9rem;
+        }
+
+        .character-body {
+            padding: 20px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .section {
+            margin-bottom: 15px;
+        }
+
+        .section-title {
+            font-size: 1.1rem;
+            color: var(--secondary);
+            margin-bottom: 10px;
+            border-bottom: 2px solid var(--accent);
+            padding-bottom: 5px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+        }
+
+        .stat-item {
+            background-color: rgba(79, 195, 247, 0.1);
+            padding: 10px;
+            border-radius: var(--border-radius);
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--secondary);
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            color: var(--text);
+            opacity: 0.8;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            background-color: var(--accent);
+            color: white;
+        }
+
+        .traits-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .holding-info {
+            background-color: rgba(22, 96, 136, 0.1);
+            padding: 10px;
+            border-radius: var(--border-radius);
+            margin-top: 10px;
+        }
+
+        @@media (max-width: 768px) {
+            .character-body {
+                grid-template-columns: 1fr;
+            }
+            
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="character-card">
+            <div class="character-header">
+                <h1 class="character-name">@Model.Name</h1>
+                <div class="character-meta">
+                    <span>Age: @Model.Age</span>
+                    <span>Rank: @Model.Rank</span>
+                    <span class="badge">@Model.Status</span>
+                </div>
+            </div>
+            
+            <div class="character-body">
+                <div>
+                    <div class="section">
+                        <h3 class="section-title">Status</h3>
+                        <p>Active Duty: @Model.Activeduty</p>
+                        
+                        @if (Model.AssignedHolding != null)
+                        {
+                            <div class="holding-info">
+                                <strong>Assigned Holding:</strong>
+                                <p>@Model.AssignedHolding.Name</p>
+                            </div>
+                        }
+                    </div>
+                    
+                    <div class="section">
+                        <h3 class="section-title">Traits</h3>
+                        <div class="traits-container">
+                            @if (Model.CharacterTraits != null && Model.CharacterTraits.Any())
+                            {
+                                foreach (var trait in Model.CharacterTraits)
+                                {
+                                    <span class="badge">@trait.Trait.Name</span>
+                                }
+                            }
+                            else
+                            {
+                                <p>No traits assigned</p>
+                            }
+                        </div>
+                    </div>
+                </div>
+                
+                <div>
+                    <div class="section">
+                        <h3 class="section-title">Attributes</h3>
+                        <div class="stats-grid">
+                            <div class="stat-item">
+                                <div class="stat-value">@Model.Diplomacy</div>
+                                <div class="stat-label">Diplomacy</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-value">@Model.Martial</div>
+                                <div class="stat-label">Martial</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-value">@Model.Stewardship</div>
+                                <div class="stat-label">Stewardship</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-value">@Model.Intrigue</div>
+                                <div class="stat-label">Intrigue</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-value">@Model.Learning</div>
+                                <div class="stat-label">Learning</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-value">@Model.Prowess</div>
+                                <div class="stat-label">Prowess</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

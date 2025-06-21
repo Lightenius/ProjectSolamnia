@@ -6,37 +6,42 @@ namespace ProjectSolamnia { }
 
 public class HoldingService
 {
-    private readonly ProjectSolamniaDbContext _context;
+    private readonly ProjectSolamniaDbContext _dbContext;
 
-    public HoldingService(ProjectSolamniaDbContext context)
+    public HoldingService(ProjectSolamniaDbContext dbContext)
     {
-        _context = context;
+        _dbContext = dbContext;
     }
+
     public List<Holding> GetAllHoldings()
     {
-        return _context.Holdings.Include(h => h.AssignedCharacters).ToList();
+        return _dbContext.Holdings.Include(h => h.AssignedCharacters).ToList();
     }
+
     public Holding? GetHoldingById(int id)
     {
-        return _context.Holdings.Include(h => h.AssignedCharacters).FirstOrDefault(h => h.Id == id);
+        return _dbContext.Holdings.Include(h => h.AssignedCharacters).FirstOrDefault(h => h.Id == id);
     }
+
     public void AddHolding(Holding holding)
     {
-        _context.Holdings.Add(holding);
-        _context.SaveChanges();
+        _dbContext.Holdings.Add(holding);
+        _dbContext.SaveChanges();
     }
+
     public void UpdateHolding(Holding holding)
     {
-        _context.Holdings.Update(holding);
-        _context.SaveChanges();
+        _dbContext.Holdings.Update(holding);
+        _dbContext.SaveChanges();
     }
+
     public void DeleteHolding(int id)
     {
-        var holding = _context.Holdings.Find(id);
+        var holding = _dbContext.Holdings.Find(id);
         if (holding != null)
         {
-            _context.Holdings.Remove(holding);
-            _context.SaveChanges();
+            _dbContext.Holdings.Remove(holding);
+            _dbContext.SaveChanges();
         }
     }
 }

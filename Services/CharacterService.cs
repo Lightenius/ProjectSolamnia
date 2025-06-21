@@ -18,6 +18,24 @@ public class CharacterService
         _dbContext = dbContext;
         _traitService = traitService;
     }
+    
+    public List<Character> GetAllCharacters()
+    {
+        return _dbContext.Characters
+            .Include(c => c.CharacterTraits)
+            .ThenInclude(ct => ct.Trait)
+            .Include(c => c.AssignedHolding)
+            .ToList();
+    }
+    public Character? GetCharacterById(int id)
+    {
+        return _dbContext.Characters
+            .Include(c => c.CharacterTraits)
+            .ThenInclude(ct => ct.Trait)
+            .Include(c => c.AssignedHolding)
+            .FirstOrDefault(c => c.Id == id);
+    }
+    
     public bool UpdateCharacter(Character character, List<int> traidIds, out string errorMessage)
     {
         errorMessage = "";
@@ -86,6 +104,30 @@ public class CharacterService
         _dbContext.SaveChanges();
         return true;
     }
+    public bool DeleteCharacter(int characterId, out string errorMessage)
+    {
+        errorMessage = "";
+
+        var character = _dbContext.Characters
+            .Include(c => c.CharacterTraits)  // karakterin traitlerini de dahil eder
+            .FirstOrDefault(c => c.Id == characterId);
+
+        if (character == null)
+        {
+            errorMessage = "Character not found.";
+            return false;
+        }
+
+        // bağlı traitleri temizler
+        _dbContext.CharacterTraits.RemoveRange(character.CharacterTraits);
+
+        // karakteri siler
+        _dbContext.Characters.Remove(character);
+
+        _dbContext.SaveChanges();
+        return true;
+    }
+
 }
 
 //Efektif karakter attributelarını belirleyen komut

@@ -1,4 +1,4 @@
-@model IEnumerable<ProjectSolamnia.Trait>
+@model ProjectSolamnia.Trait
 
 <!DOCTYPE html>
 <html lang="en">
@@ -88,7 +88,7 @@
             text-align: center;
         }
 
-        @media (max-width: 768px) {
+        @@media (max-width: 768px) {
             .trait-card {
                 flex-direction: column;
                 align-items: center;
@@ -107,36 +107,35 @@
 </head>
 <body>
     <div class="container">
-        <h1 style="color: var(--primary); margin-bottom: 30px;">Trait List</h1>
+        <h1 style="color: var(--primary); margin-bottom: 30px;">Trait</h1>
 
-        @foreach (var trait in Model)
-        {
+        
             <div class="trait-card">
-                @if (!string.IsNullOrWhiteSpace(trait.ImageUrl))
-                {
-                    <img src="@trait.ImageUrl" alt="@trait.Name" class="trait-image" />
-                }
-                else
-                {
-                    <div class="trait-image" style="display: flex; align-items: center; justify-content: center;">No Image</div>
-                }
+    @if (!string.IsNullOrWhiteSpace(Model.ImageUrl))
+    {
+        <img src="@Model.ImageUrl" alt="@Model.Name" class="trait-image" />
+    }
+    else
+    {
+        <div class="trait-image" style="display: flex; align-items: center; justify-content: center;">No Image</div>
+    }
 
-                <div class="trait-details">
-                    <h2 class="trait-title">@trait.Name</h2>
-                    <div class="trait-type">@trait.Type</div>
-                    <p class="trait-description">@trait.Description</p>
+    <div class="trait-details">
+        <h2 class="trait-title">@Model.Name</h2>
+        <div class="trait-type">@Model.Type</div>
+        <p class="trait-description">@Model.Description</p>
 
-                    <div class="bonus-stats">
-                        <div class="stat-bonus">Diplomacy: @trait.BonusDiplomacy</div>
-                        <div class="stat-bonus">Martial: @trait.BonusMartial</div>
-                        <div class="stat-bonus">Stewardship: @trait.BonusStewardship</div>
-                        <div class="stat-bonus">Intrigue: @trait.BonusIntrigue</div>
-                        <div class="stat-bonus">Learning: @trait.BonusLearning</div>
-                        <div class="stat-bonus">Prowess: @trait.BonusProwess</div>
-                    </div>
-                </div>
-            </div>
-        }
+        <div class="bonus-stats">
+            <div class="stat-bonus">Diplomacy: @Model.BonusDiplomacy</div>
+            <div class="stat-bonus">Martial: @Model.BonusMartial</div>
+            <div class="stat-bonus">Stewardship: @Model.BonusStewardship</div>
+            <div class="stat-bonus">Intrigue: @Model.BonusIntrigue</div>
+            <div class="stat-bonus">Learning: @Model.BonusLearning</div>
+            <div class="stat-bonus">Prowess: @Model.BonusProwess</div>
+        </div>
+    </div>
+</div>
+        
     </div>
 </body>
 </html>

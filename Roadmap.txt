@@ -1,3 +1,9 @@
+Sunucuyu çalıştırıp web sitesine girmek için ne yapmak gerekiyor?
+1. "dotnet run -s" komutu ile programı çalıştırın
+2. bir web tarayıcısında "localhost:5000/c/{id}" adresinde karakterleri, "localhost:5000/t/{id}" adresinde de traitleri görüntüleyebilirsiniz.
+3. Örnek "localhost:500/c/1" adresinde Thome'un sayfası bulunmaktadır.
+4. sunucuyu durdurmak için terminalde iki defa Ctrl + c tuşlarına basınız. (Kopyalar gibi)
+
 [x] 1. Database Tasarımı ve Oluşturulması
  [x] Entity modelleri (Character, Trait, Holding vb.) detaylı tasarımı
  [x] DbContext yapılandırması ve migration işlemleri

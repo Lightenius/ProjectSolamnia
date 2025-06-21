@@ -51,19 +51,35 @@ public class CharacterService
         {
             return false;
         }
-        var existingCharacter = _dbContext.Characters
+
+        Character? existingCharacter = null;
+
+        if (character.Id != 0)
+        {
+            existingCharacter = _dbContext.Characters
             .Include(c => c.CharacterTraits)
             .FirstOrDefault(c => c.Id == character.Id);
 
+            if (existingCharacter == null)
+            {
+                errorMessage = $"Character with ID {character.Id} not found.";
+                return false;
+            }
+        }
 
-        // girilen karakterin var olup olmadığını bakar
-        //varsa bilgilerini günceller
-        //yoksa yeni karakter yaratır 
-        // ya da öyle bişey yapar şu anda emin değilim hatalı olabilir
         if (existingCharacter == null)
         {
+            character.CharacterTraits = new List<CharacterTrait>();
+            foreach (var t in traits)
+            {
+                character.CharacterTraits.Add(new CharacterTrait
+                {
+                    TraitId = t.Id,
+                    Trait = t,
+                    Character = character
+                });
+            }
             _dbContext.Characters.Add(character);
-            existingCharacter = character;
         }
         else
         {

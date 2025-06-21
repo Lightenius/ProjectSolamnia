@@ -15,6 +15,7 @@ namespace ProjectSolamnia
 
         public static void Main(string[] args)
         {
+            Console.Clear();
             Console.WriteLine("Project Solamnia Console Application");
             Console.WriteLine("Press any key to start...");
             Console.ReadKey();
@@ -147,6 +148,29 @@ namespace ProjectSolamnia
 
         private static void CreateOrUpdateCharacter()
         {
+            Console.WriteLine("Enter Character ID to update (0 for new character):");
+            var charIdInput = Console.ReadLine();
+            int charId = int.TryParse(charIdInput, out var cId) ? cId : 0;
+
+            Character? existingCharacter = null;
+            if (charId != 0)
+            {
+                existingCharacter = _characterService.GetCharacterById(charId);
+                if (existingCharacter == null)
+                {
+                    Console.WriteLine($"Character with ID {charId} not found.");
+                    return;
+                }
+                else
+                {
+                    Console.WriteLine($"Updating character: {existingCharacter.Name}");
+                }
+            }
+            else
+            {
+                Console.WriteLine("Creating a new character...");
+            }
+
             Console.WriteLine("Enter character name:");
             var name = Console.ReadLine();
 
@@ -164,10 +188,6 @@ namespace ProjectSolamnia
             Console.WriteLine("Assigned Holding ID (or leave empty):");
             var holdingIdInput = Console.ReadLine();
             int holdingId = int.TryParse(holdingIdInput, out var hId) ? hId : 0;
-
-            Console.WriteLine("Enter Character ID to update (or leave empty for new character):");
-            var charIdInput = Console.ReadLine();
-            int charIdt = int.TryParse(charIdInput, out var cId) ? cId : 0;
 
             Console.WriteLine("Enter Trait IDs separated by comma (e.g. 1,3,5):");
             var idsInput = Console.ReadLine();
@@ -329,7 +349,7 @@ namespace ProjectSolamnia
             {
                 var currentDots = dots[i % dots.Length];
                 Console.Write(currentDots);
-                Thread.Sleep(650);
+                Thread.Sleep(800);
                 Console.SetCursorPosition(Console.CursorLeft - currentDots.Length, Console.CursorTop);
                 Console.Write(new string(' ', currentDots.Length));
                 Console.SetCursorPosition(Console.CursorLeft - currentDots.Length, Console.CursorTop);

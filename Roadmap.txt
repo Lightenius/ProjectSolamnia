@@ -29,3 +29,15 @@
  [ ] Yeni kumandan traitlerinin savaş sistemiyle entegre edilmesi
  [ ] Komutanların görev ve savaş durumlarının backend tarafından takip edilmesi
  [ ] Savaş sonrası veritabanı güncellemelerinin sağlanması
+
+
+
+
+güncel durum için ek notlar
+- karakter silme fonksiyonu eksik
+- karakter yaratılırken aynı trait 2 tekrar alınabiliyor olma ihtimali var
+- karakter yaratırken exclusive traitler denetlenmiyor
+- traitlerin exclusiveleri girilecek
+- trait silme fonksiyonu eklenecek
+- holding güncelleme yok
+- holding silme fonksiyonu eklenecek

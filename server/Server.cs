@@ -32,12 +32,14 @@ public class SolamniaServer
 
         WebApplicationBuilder builder = WebApplication.CreateBuilder();
 
-        builder.Services.AddRazorPages(); // TODO: 
+        builder.Services.AddRazorPages().AddRazorRuntimeCompilation(); // TODO: 
+        builder.Services.AddScoped<IRazorViewToStringRenderer, RazorViewToStringRenderer>();
 
         WebApplication app = builder.Build();
 
+        InitializeServices();
 
-        app.MapGet("/{s}/{p}", handleDefault);
+        app.MapGet("/c/{id}", handleCharacter);
 
         app.Run();
 
@@ -73,83 +75,49 @@ public class SolamniaServer
     }
 
 
-    private static IResult handleCharacter(string id, IServiceProvider sp)
+    private static async Task<IResult> handleCharacter(string id, IRazorViewToStringRenderer renderer)
     {
-        int int_id = int.Parse(id);
+    if (!int.TryParse(id, out var intId))
+    {
+        return Results.BadRequest("Invalid ID format");
+    }
 
-        Character? character = _characterService.GetCharacterById(int_id);
+    Character? character = _characterService.GetCharacterById(intId);
+    if (character == null)
+    {
+        return Results.NotFound();
+    }
 
-        if (character == null)
+    try
+    {
+        // Try different view paths if needed
+        var viewPaths = new[]
         {
-            // null character exception
-            Results.BadRequest();
+            "/Views/CharacterProfile.cshtml",
+            "Views/CharacterProfile.cshtml",
+            "CharacterProfile.cshtml"
+        };
+
+        foreach (var viewPath in viewPaths)
+        {
+            try
+            {
+                var html = await renderer.RenderViewToStringAsync(viewPath, character);
+                return Results.Content(html, "text/html");
+            }
+            catch { /* Try next path */ }
         }
 
-        var filledTemplate = RazorTemplateRenderer.RenderRazorViewToString("CharacterProfile", character, sp);
-
-        return Results.Content(filledTemplate.ToString(), "text/html");
-
+        return Results.Problem("Could not find the view file");
+    }
+    catch (Exception ex)
+    {
+        return Results.Problem($"Error rendering view: {ex.Message}");
+    }
     }
 
 
 
-    public static class RazorTemplateRenderer
-    {
-        public static async Task<string> RenderRazorViewToString<TModel>(
-            string viewName,
-            TModel model,
-            IServiceProvider serviceProvider,
-            Dictionary<string, object> viewDataDictionary = null)
-        {
-            var httpContext = new DefaultHttpContext { RequestServices = serviceProvider };
-            var actionContext = new ActionContext(httpContext, new RouteData(), new ActionDescriptor());
-
-            // Resolve required services
-            var viewEngine = serviceProvider.GetRequiredService<IRazorViewEngine>();
-            var tempDataProvider = serviceProvider.GetRequiredService<ITempDataProvider>();
-            var viewData = new ViewDataDictionary<TModel>(
-                new EmptyModelMetadataProvider(),
-                new ModelStateDictionary())
-            {
-                Model = model
-            };
-
-            // Add additional view data if provided
-            if (viewDataDictionary != null)
-            {
-                foreach (var item in viewDataDictionary)
-                {
-                    viewData[item.Key] = item.Value;
-                }
-            }
-
-            // Find the view
-            var viewResult = viewEngine.FindView(actionContext, viewName, false);
-
-            if (!viewResult.Success)
-            {
-                // Try again with view name as path
-                viewResult = viewEngine.GetView(null, viewName, false);
-
-                if (!viewResult.Success)
-                {
-                    throw new FileNotFoundException($"Could not find view '{viewName}'");
-                }
-            }
-
-            // Render the view
-            await using var writer = new StringWriter();
-            var viewContext = new ViewContext(
-                actionContext,
-                viewResult.View,
-                viewData,
-                new TempDataDictionary(httpContext, tempDataProvider),
-                writer,
-                new HtmlHelperOptions());
-
-            await viewResult.View.RenderAsync(viewContext);
-            return writer.ToString();
-        }
-    }
+    
 
 }

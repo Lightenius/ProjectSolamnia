@@ -8400,6 +8400,7 @@
       "Microsoft.AspNetCore >= 2.3.0",
       "Microsoft.AspNetCore.Mvc >= 2.3.0",
       "Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation >= 9.0.6",
+      "Microsoft.AspNetCore.Mvc.ViewFeatures >= 2.3.0",
       "Microsoft.EntityFrameworkCore >= 9.0.6",
       "Microsoft.EntityFrameworkCore.SqlServer >= 9.0.6",
       "Microsoft.EntityFrameworkCore.Sqlite >= 9.0.6",
@@ -8468,6 +8469,10 @@
           "Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation": {
             "target": "Package",
             "version": "[9.0.6, )"
+          },
+          "Microsoft.AspNetCore.Mvc.ViewFeatures": {
+            "target": "Package",
+            "version": "[2.3.0, )"
           },
           "Microsoft.EntityFrameworkCore": {
             "target": "Package",

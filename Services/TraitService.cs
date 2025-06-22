@@ -33,10 +33,67 @@ public class TraitService
         _dbContext.SaveChanges();
     }
 
-    public void UpdateTrait(Trait trait)
+    public bool UpdateTrait(Trait trait, List<int> exclusiveTraitIds, out string errorMessage)
     {
-        _dbContext.Traits.Update(trait);
-        _dbContext.SaveChanges();
+        errorMessage = string.Empty;
+        try
+        {
+            var existingTrait = _dbContext.Traits
+                .Include(t => t.ExclusiveWithTraits)
+                .FirstOrDefault(t => t.Id == trait.Id);
+
+            if (existingTrait == null)
+            {
+                errorMessage = "Trait not found";
+                return false;
+            }
+
+            // Update basic properties
+            existingTrait.Name = trait.Name;
+            existingTrait.Description = trait.Description;
+            existingTrait.Type = trait.Type;
+            existingTrait.ImageUrl = trait.ImageUrl;
+            existingTrait.BonusDiplomacy = trait.BonusDiplomacy;
+            existingTrait.BonusMartial = trait.BonusMartial;
+            existingTrait.BonusStewardship = trait.BonusStewardship;
+            existingTrait.BonusIntrigue = trait.BonusIntrigue;
+            existingTrait.BonusLearning = trait.BonusLearning;
+            existingTrait.BonusProwess = trait.BonusProwess;
+
+            // Update exclusive traits
+            var currentExclusives = existingTrait.ExclusiveWithTraits.ToList();
+            var newExclusives = exclusiveTraitIds.Select(id => new TraitExclusive
+            {
+                TraitId = trait.Id,
+                ExclusiveWithTraitId = id
+            }).ToList();
+
+            // Remove old exclusives not in new list
+            foreach (var existing in currentExclusives)
+            {
+                if (!newExclusives.Any(ne => ne.ExclusiveWithTraitId == existing.ExclusiveWithTraitId))
+                {
+                    _dbContext.TraitExclusives.Remove(existing);
+                }
+            }
+
+            // Add new exclusives not in old list
+            foreach (var newExclusive in newExclusives)
+            {
+                if (!currentExclusives.Any(ce => ce.ExclusiveWithTraitId == newExclusive.ExclusiveWithTraitId))
+                {
+                    _dbContext.TraitExclusives.Add(newExclusive);
+                }
+            }
+
+            _dbContext.SaveChanges();
+            return true;
+        }
+        catch (Exception ex)
+        {
+            errorMessage = ex.Message;
+            return false;
+        }
     }
 
 // AddTraitWithExclusives trait eklerken aynı zamanda exclusive traitlerle ilişkisini de kurar
@@ -91,18 +148,6 @@ public class TraitService
     {
         errorMessage = "";
 
-        var personalityCount = traits.Count(t => t.Type == TraitType.Personality);
-        if (personalityCount != 3)
-        {
-            errorMessage = "A character must have 3 Personality traits.";
-            return false;
-        }
-        var educationCount = traits.Count(t => t.Type == TraitType.Education);
-        if (educationCount != 1)
-        {
-            errorMessage = "A character must have 1 Education traits.";
-            return false;
-        }
         //exclusive trait kontrolü
         //eğer traitlerin exclusive traiti varsa ve o traitler arasında varsa false verir
         foreach (var trait in traits)

@@ -16,26 +16,22 @@ namespace ProjectSolamnia
 
         public static void Main(string[] args)
         {
-<<<<<<< HEAD
-            Console.Clear();
-=======
-            if (args[0] == "-s")
-            {
-                Server.SolamniaServer.Run();
-            }
+            //       if (args[0] == "-s")
+            //       {
+            //           Server.SolamniaServer.Run();
+            //       }
 
-            
->>>>>>> a2a3c140846107629e9e20310e4d0866e3590c27
-            Console.WriteLine("Project Solamnia Console Application");
-            Console.WriteLine("Press any key to start...");
-            Console.ReadKey();
-            Console.Clear();
-            ShowLoadingAnimation();
-            Console.Clear();
-            Console.WriteLine("Initialization complete. Starting application...\n");
-            Console.WriteLine("Loading services and database...");
-            Console.WriteLine("Please wait...");
-            Thread.Sleep(4000); // Simulate loading time
+
+            //        Console.WriteLine("Project Solamnia Console Application");
+            //        Console.WriteLine("Press any key to start...");
+            //        Console.ReadKey();
+            //        Console.Clear();
+            //        ShowLoadingAnimation();
+            //        Console.Clear();
+            //        Console.WriteLine("Initialization complete. Starting application...\n");
+            //        Console.WriteLine("Loading services and database...");
+            //        Console.WriteLine("Please wait...");
+            //        Thread.Sleep(4000); // Simulate loading time
             Console.Clear();
 
             InitializeServices();
@@ -71,10 +67,10 @@ namespace ProjectSolamnia
                 Console.WriteLine("=== Project Solamnia ===");
                 Console.WriteLine("1. Characters");
                 Console.WriteLine("2. Traits");
-                Console.WriteLine("3. New Character / Update");
-                Console.WriteLine("4. New Trait / Update");
-                Console.WriteLine("5. Holdings");
-                Console.WriteLine("6. New Holding / Update");
+                Console.WriteLine("3. Holdings");
+                Console.WriteLine("4. Manage Characters");
+                Console.WriteLine("5. Manage Traits");
+                Console.WriteLine("6. Manage Holdings");
                 Console.WriteLine("0. Exit");
                 Console.Write("Your choice: ");
 
@@ -84,62 +80,27 @@ namespace ProjectSolamnia
                 switch (choice)
                 {
                     case "1":
-                        var chars = _characterService.GetAllCharacters();
-                        foreach (var c in chars)
-                        {
-                            Console.WriteLine($"#{c.Id} {c.Name}, Rank: {c.Rank}, Age: {c.Age}");
-                            Console.WriteLine($" Status: {c.Status}, Holding: {c.AssignedHolding?.Name ?? "None"}");
-                            Console.WriteLine($" Traits: {string.Join(", ", c.CharacterTraits.Select(t => t.Trait.Name))}");
-                            Console.WriteLine(
-                                    $"Attributes: \nDIP={EffectiveAttributeCalculator.EffectiveDiplomacy(c)} " +
-                                    $"\nMAR={EffectiveAttributeCalculator.EffectiveMartial(c)} " +
-                                    $"\nSTE={EffectiveAttributeCalculator.EffectiveStewardship(c)} " +
-                                    $"\nINT={EffectiveAttributeCalculator.EffectiveIntrigue(c)} " +
-                                    $"\nLEA={EffectiveAttributeCalculator.EffectiveLearning(c)} " +
-                                    $"\nPRO={EffectiveAttributeCalculator.EffectiveProwess(c)}");
-                            Console.WriteLine(new string('-', 40));
-                        }
+                        ListCharacters();
                         break;
 
                     case "2":
-                        var traits = _traitService.GetAllTraits();
-                        foreach (var t in traits)
-                        {
-                            Console.WriteLine($"#{t.Id} {t.Name} ({t.Type})");
-                            Console.WriteLine($" Desc: {t.Description}");
-                            Console.WriteLine($" Image URL: {t.ImageUrl}");
-                            Console.WriteLine($" Bonuses: \nDIP={t.BonusDiplomacy}, \nMAR={t.BonusMartial}, \nSTE={t.BonusStewardship}, \nINT={t.BonusIntrigue}, \nLEA={t.BonusLearning}, \nPRO={t.BonusProwess}");
-                            if (t.ExclusiveWithTraits.Any())
-                            {
-                                Console.WriteLine($" Exclusive With: {string.Join(", ", t.ExclusiveWithTraits.Select(e => e.ExclusiveWithTrait.Name))}");
-                            }
-                            Console.WriteLine(new string('-', 40));
-                        }
+                        ListTraits();
                         break;
 
                     case "3":
-                        CreateOrUpdateCharacter();
+                        ListHoldings();
                         break;
 
                     case "4":
-                        CreateOrUpdateTrait();
+                        ManageCharacters();
                         break;
 
                     case "5":
-                        var holdings = _holdingService.GetAllHoldings();
-                        foreach (var h in holdings)
-                        {
-                            Console.WriteLine($"#{h.Id} {h.Name} ({h.Type}) - Region: {h.Region}, Supply: {h.SupplyLevel}, Troops: {h.TroopsCount}");
-                            Console.WriteLine(" Assigned Characters:");
-                            foreach (var c in h.AssignedCharacters)
-                            {
-                                Console.WriteLine($" - {c.Name} (Rank: {c.Rank}, Age: {c.Age})");
-                            }
-                        }
+                        ManageTraits();
                         break;
 
                     case "6":
-                        CreateOrUpdateHolding();
+                        ManageHoldings();
                         break;
 
                     case "0":
@@ -155,61 +116,316 @@ namespace ProjectSolamnia
                 Console.ReadKey();
             }
         }
-
-        private static void CreateOrUpdateCharacter()
+        private static void ListCharacters()
         {
-            Console.WriteLine("Enter Character ID to update (0 for new character):");
-            var charIdInput = Console.ReadLine();
-            int charId = int.TryParse(charIdInput, out var cId) ? cId : 0;
-
-            Character? existingCharacter = null;
-            if (charId != 0)
+            var characters = _characterService.GetAllCharacters();
+            foreach (var c in characters)
             {
-                existingCharacter = _characterService.GetCharacterById(charId);
-                if (existingCharacter == null)
+                Console.WriteLine($"#{c.Id} {c.Name}, Rank: {c.Rank}, Age: {c.Age}");
+                Console.WriteLine($" Status: {c.Status}, Holding: {c.AssignedHolding?.Name ?? "None"}, Active Duty: {c.ActiveDuty}");
+                Console.WriteLine($" Traits: {string.Join(", ", c.CharacterTraits.Select(t => t.Trait.Name))}");
+                Console.WriteLine(
+                        $"Attributes: \nDIP={EffectiveAttributeCalculator.EffectiveDiplomacy(c)} " +
+                        $"\nMAR={EffectiveAttributeCalculator.EffectiveMartial(c)} " +
+                        $"\nSTE={EffectiveAttributeCalculator.EffectiveStewardship(c)} " +
+                        $"\nINT={EffectiveAttributeCalculator.EffectiveIntrigue(c)} " +
+                        $"\nLEA={EffectiveAttributeCalculator.EffectiveLearning(c)} " +
+                        $"\nPRO={EffectiveAttributeCalculator.EffectiveProwess(c)}");
+                Console.WriteLine(new string('-', 40));
+            }
+
+        }
+
+        private static void ListTraits()
+        {
+            var traits = _traitService.GetAllTraits();
+            foreach (var t in traits)
+            {
+                Console.WriteLine($"#{t.Id} {t.Name} ({t.Type})");
+                Console.WriteLine($" Desc: {t.Description}");
+                Console.WriteLine($" Image URL: {t.ImageUrl}");
+                Console.WriteLine($" Bonuses: \nDIP={t.BonusDiplomacy}, \nMAR={t.BonusMartial}, \nSTE={t.BonusStewardship}, \nINT={t.BonusIntrigue}, \nLEA={t.BonusLearning}, \nPRO={t.BonusProwess}");
+                if (t.ExclusiveWithTraits.Any())
                 {
-                    Console.WriteLine($"Character with ID {charId} not found.");
+                    Console.WriteLine($" Exclusive With: {string.Join(", ", t.ExclusiveWithTraits.Select(e => e.ExclusiveWithTrait.Name))}");
+                }
+                Console.WriteLine(new string('-', 40));
+            }
+        }
+
+        private static void ListHoldings()
+        {
+            var holdings = _holdingService.GetAllHoldings();
+            foreach (var h in holdings)
+            {
+                Console.WriteLine($"#{h.Id} {h.Name} ({h.Type}) - Region: {h.Region}, Supply: {h.SupplyLevel}, Troops: {h.TroopsCount}");
+                Console.WriteLine(" Assigned Characters:");
+                foreach (var c in h.AssignedCharacters)
+                {
+                    Console.WriteLine($" - {c.Name} (Rank: {c.Rank}, Age: {c.Age})");
+                }
+                Console.WriteLine(new string('-', 40));
+            }
+        }
+
+
+        private static void ManageCharacters()
+        {
+            Console.WriteLine("=== Manage Characters ===");
+            Console.WriteLine("1. Create New Character");
+            Console.WriteLine("2. Update Character");
+            Console.WriteLine("3. Delete Character");
+            Console.WriteLine("0. Back");
+            Console.Write("Your choice: ");
+
+            var choice = Console.ReadLine();
+            Console.Clear();
+
+            switch (choice)
+            {
+                case "1":
+                    CreateCharacter();
+                    break;
+
+                case "2":
+                    UpdateCharacter();
+                    break;
+
+                case "3":
+                    DeleteCharacter();
+                    break;
+
+                case "0":
                     return;
-                }
-                else
+
+                default:
+                    Console.WriteLine("Invalid choice.");
+                    break;
+            }
+        }
+
+        private static void ManageTraits()
+        {
+            Console.WriteLine("=== Manage Traits ===");
+            Console.WriteLine("1. Create New Trait");
+            Console.WriteLine("2. Update Trait");
+            Console.WriteLine("3. Delete Trait");
+            Console.WriteLine("0. Back");
+            Console.Write("Your choice: ");
+
+            var choice = Console.ReadLine();
+            Console.Clear();
+
+            switch (choice)
+            {
+                case "1":
+                    CreateTrait();
+                    break;
+
+                case "2":
+                    UpdateTrait();
+                    break;
+
+                case "3":
+                    DeleteTrait();
+                    break;
+
+                case "0":
+                    return;
+
+                default:
+                    Console.WriteLine("Invalid choice.");
+                    break;
+            }
+        }
+
+        private static void ManageHoldings()
+        {
+            Console.WriteLine("=== Manage Holdings ===");
+            Console.WriteLine("1. Create New Holding");
+            Console.WriteLine("2. Update Holding");
+            Console.WriteLine("3. Delete Holding");
+            Console.WriteLine("0. Back");
+            Console.Write("Your choice: ");
+
+            var choice = Console.ReadLine();
+            Console.Clear();
+
+            switch (choice)
+            {
+                case "1":
+                    CreateHolding();
+                    break;
+
+                case "2":
+                    UpdateHolding();
+                    break;
+
+                case "3":
+                    DeleteHolding();
+                    break;
+
+                case "0":
+                    return;
+
+                default:
+                    Console.WriteLine("Invalid choice.");
+                    break;
+            }
+        }
+
+        private static void CreateCharacter()
+        {
+            Console.WriteLine("Creating a new character...");
+            var newChar = new Character { Id = 0 };
+
+            GetCharacterDetails(newChar);
+
+            // Get trait IDs separately since we need them for validation
+            Console.WriteLine("Enter Trait IDs separated by comma (e.g. 1,3,5,36 for 3 Personality + 1 Education):");
+            var idsInput = Console.ReadLine();
+            var traitIds = idsInput?.Split(',', StringSplitOptions.RemoveEmptyEntries)
+                .Select(x => int.TryParse(x.Trim(), out var id) ? id : -1)
+                .Where(x => x != -1).ToList() ?? new List<int>();
+
+            if (_characterService.UpdateCharacter(newChar, traitIds, out var err))
+                Console.WriteLine("Character created successfully.");
+            else
+                Console.WriteLine("Error: " + err);
+        }
+
+
+        private static void UpdateCharacter()
+        {
+            Console.WriteLine("\n=== Update Character ===");
+            
+            // Get character ID with validation
+            int charId;
+            while (true)
+            {
+                Console.Write("\nEnter Character ID to update (0 to cancel): ");
+                if (!int.TryParse(Console.ReadLine(), out charId))
                 {
-                    Console.WriteLine($"Updating character: {existingCharacter.Name}");
+                    Console.WriteLine("Invalid input. Please enter a number.");
+                    continue;
                 }
+
+                if (charId == 0) return; // Exit if user cancels
+
+                var existingCharacter = _characterService.GetCharacterById(charId);
+                if (existingCharacter != null) break;
+                
+                Console.WriteLine($"No character found with ID {charId}. Please try again.");
+            }
+
+            var character = _characterService.GetCharacterById(charId);
+            
+            // Show current details
+            Console.WriteLine($"\nUpdating character: {character.Name}");
+            Console.WriteLine($"Current traits: {string.Join(", ", character.CharacterTraits.Select(ct => ct.Trait.Name))}");
+
+            // Get updated details
+            Console.WriteLine("\nEnter new details (leave blank to keep current value):");
+            
+            Console.Write($"Name [{character.Name}]: ");
+            var nameInput = Console.ReadLine();
+            if (!string.IsNullOrWhiteSpace(nameInput))
+                character.Name = nameInput;
+
+            Console.Write($"Age [{character.Age}]: ");
+            if (int.TryParse(Console.ReadLine(), out var newAge))
+                character.Age = newAge;
+
+            Console.Write($"Rank [{character.Rank}]: ");
+            var rankInput = Console.ReadLine();
+            if (!string.IsNullOrWhiteSpace(rankInput))
+                character.Rank = rankInput;
+
+            Console.WriteLine($"Status (Current: {character.Status})");
+            Console.WriteLine("0: AD, 1: KIA, 2: MIA, 3: POW, 4: DOW, 5: AWOL, 6: DES");
+            Console.Write("New status: ");
+            if (Enum.TryParse<StatusType>(Console.ReadLine(), out var newStatus))
+                character.Status = newStatus;
+            
+            Console.Write($"Rank [{character.ActiveDuty}]: ");
+            var activeDutyInput = Console.ReadLine();
+            if (!string.IsNullOrWhiteSpace(activeDutyInput))
+                character.ActiveDuty = activeDutyInput;
+
+            // Get new traits
+            List<int> traitIds;
+            while (true)
+            {
+                Console.Write("\nEnter 3 Personality + 1 Education Trait IDs (comma separated): ");
+                var idsInput = Console.ReadLine();
+                traitIds = idsInput?.Split(',', StringSplitOptions.RemoveEmptyEntries)
+                    .Select(x => int.TryParse(x.Trim(), out var id) ? id : -1)
+                    .Where(x => x != -1).ToList() ?? new List<int>();
+
+                // Validate trait selection
+                var traits = _traitService.GetAllTraits().Where(t => traitIds.Contains(t.Id)).ToList();
+                var personalityCount = traits.Count(t => t.Type == TraitType.Personality);
+                var educationCount = traits.Count(t => t.Type == TraitType.Education);
+
+                if (personalityCount == 3 && educationCount == 1) break;
+                
+                Console.WriteLine($"Invalid selection. Need exactly 3 Personality + 1 Education traits (you entered {personalityCount}+{educationCount}).");
+            }
+
+            // Update character
+            if (_characterService.UpdateCharacter(character, traitIds, out var err))
+            {
+                Console.WriteLine("\nCharacter updated successfully!");
+                Console.WriteLine($"New traits: {string.Join(", ", character.CharacterTraits.Select(ct => ct.Trait.Name))}");
             }
             else
             {
-                Console.WriteLine("Creating a new character...");
+                Console.WriteLine($"\nError updating character: {err}");
+            }
+        }
+
+        private static void DeleteCharacter()
+        {
+            Console.WriteLine("Enter Character ID to delete:");
+            var charIdInput = Console.ReadLine();
+            if (!int.TryParse(charIdInput, out var charId))
+            {
+                Console.WriteLine("Invalid ID.");
+                return;
             }
 
+            if (_characterService.DeleteCharacter(charId, out var err))
+                Console.WriteLine("Character deleted successfully.");
+            else
+                Console.WriteLine("Error: " + err);
+        }
+
+        private static void GetCharacterDetails(Character character)
+        {
             Console.WriteLine("Enter character name:");
-            var name = Console.ReadLine();
+            character.Name = Console.ReadLine() ?? "";
 
             Console.WriteLine("Age:");
-            var ageInput = Console.ReadLine();
-            int age = int.TryParse(ageInput, out var a) ? a : 30;
+            if (int.TryParse(Console.ReadLine(), out var age))
+                character.Age = age;
 
             Console.WriteLine("Rank:");
-            var rank = Console.ReadLine();
+            character.Rank = Console.ReadLine() ?? "";
 
             Console.WriteLine("Status 0: AD - Active Duty, \n1: KIA - Killed in action, \n2: MIA - Missing in action, \n3: POW - Prisoner of war, \n4: DOW - Died of Wounds, \n5: AWOL - Absent Without Leave, \n6: DES - Deserter:");
-            var statusInput = Console.ReadLine();
-            StatusType status = Enum.TryParse<StatusType>(statusInput, out var s) ? s : StatusType.AD;
+            if (Enum.TryParse<StatusType>(Console.ReadLine(), out var status))
+                character.Status = status;
 
             Console.WriteLine("Assigned Holding ID (or leave empty):");
-            var holdingIdInput = Console.ReadLine();
-            int holdingId = int.TryParse(holdingIdInput, out var hId) ? hId : 0;
+            if (int.TryParse(Console.ReadLine(), out var holdingId))
+                character.AssignedHoldingId = holdingId;
 
-            Console.WriteLine("Enter Trait IDs separated by comma (e.g. 1,3,5):");
-            var idsInput = Console.ReadLine();
-            var ids = idsInput?.Split(',', StringSplitOptions.RemoveEmptyEntries)
-                .Select(x => int.TryParse(x.Trim(), out var id) ? id : -1)
-                .Where(x => x != -1).ToList() ?? new List<int>();
+            Console.WriteLine("Active Duty:");
+            character.ActiveDuty = Console.ReadLine() ?? "";
 
             Console.WriteLine("Enter attributes separated by spaces (Diplomacy Martial Stewardship Intrigue Learning Prowess), e.g. '5 5 5 5 5 5':");
             var input = Console.ReadLine();
 
-            // girilen mesajı 6 parçaya ayır ve her birini int'e çevir
-            // eğer boşsa 5 olarak ayarla
             int[] attributes = new int[6];
             if (!string.IsNullOrWhiteSpace(input))
             {
@@ -219,74 +435,54 @@ namespace ProjectSolamnia
                     if (i < parts.Length && int.TryParse(parts[i], out var val))
                         attributes[i] = val;
                     else
-                        attributes[i] = 5;  // default değer
+                        attributes[i] = 5;
                 }
             }
             else
             {
                 for (int i = 0; i < 6; i++)
-                    attributes[i] = 5; // default hepsi 5
+                    attributes[i] = 5;
             }
 
-
-            var newChar = new Character
-            {
-                Id = cId,
-                Name = name ?? "",
-                Age = age,
-                Rank = rank ?? "",
-                Status = status,
-                AssignedHoldingId = holdingId,
-                Activeduty = "Yes",
-                Diplomacy = attributes[0],
-                Martial = attributes[1],
-                Stewardship = attributes[2],
-                Intrigue = attributes[3],
-                Learning = attributes[4],
-                Prowess = attributes[5]
-            };
-
-            if (_characterService.UpdateCharacter(newChar, ids, out var err))
-                Console.WriteLine("Character added/updated successfully.");
-            else
-                Console.WriteLine("Error: " + err);
+            character.Diplomacy = attributes[0];
+            character.Martial = attributes[1];
+            character.Stewardship = attributes[2];
+            character.Intrigue = attributes[3];
+            character.Learning = attributes[4];
+            character.Prowess = attributes[5];
+            character.ActiveDuty = "";
         }
 
-        private static void CreateOrUpdateTrait()
+        private static void CreateTrait()
         {
-            Console.Write("Trait name: ");
-            var name = Console.ReadLine();
+            Console.WriteLine("Creating a new trait...");
+            var newTrait = new Trait{Name = ""};
 
-            Console.Write("Description: ");
-            var desc = Console.ReadLine();
+            GetTraitDetails(newTrait);
 
-            Console.Write("Trait type (0: Personality, 1: Education, 2: Other): ");
-            var tTypeInput = Console.ReadLine();
-            TraitType tType = Enum.TryParse<TraitType>(tTypeInput, out var tt) ? tt : TraitType.Personality;
+            _traitService.AddTraitWithExclusives(newTrait, new List<int>());
+            Console.WriteLine("Trait created successfully.");
+        }
 
-            Console.Write("Image URL: ");
-            var imageUrl = Console.ReadLine();
+        private static void UpdateTrait()
+        {
+            Console.WriteLine("Enter Trait ID to update:");
+            var traitIdInput = Console.ReadLine();
+            if (!int.TryParse(traitIdInput, out var traitId))
+            {
+                Console.WriteLine("Invalid ID.");
+                return;
+            }
 
-            Console.WriteLine("Enter stat bonuses (empty = 0):");
-            int Read(string s) => int.TryParse(s, out var x) ? x : 0;
+            var existingTrait = _traitService.GetTraitById(traitId);
+            if (existingTrait == null)
+            {
+                Console.WriteLine($"Trait with ID {traitId} not found.");
+                return;
+            }
 
-            Console.Write("Diplomacy: ");
-            int dip = Read(Console.ReadLine() ?? "");
-
-            Console.Write("Martial: ");
-            int mar = Read(Console.ReadLine() ?? "");
-
-            Console.Write("Stewardship: ");
-            int ste = Read(Console.ReadLine() ?? "");
-
-            Console.Write("Intrigue: ");
-            int intg = Read(Console.ReadLine() ?? "");
-
-            Console.Write("Learning: ");
-            int lea = Read(Console.ReadLine() ?? "");
-
-            Console.Write("Prowess: ");
-            int pro = Read(Console.ReadLine() ?? "");
+            Console.WriteLine($"Updating trait: {existingTrait.Name}");
+            GetTraitDetails(existingTrait);
 
             Console.Write("Enter Exclusive Trait IDs separated by comma (e.g. 2,5): ");
             var exclInput = Console.ReadLine();
@@ -294,59 +490,143 @@ namespace ProjectSolamnia
                 .Select(x => int.TryParse(x.Trim(), out var id) ? id : -1)
                 .Where(x => x != -1).ToList() ?? new List<int>();
 
-            var newTrait = new Trait
-            {
-                Name = name ?? "",
-                Description = desc,
-                Type = tType,
-                BonusDiplomacy = dip,
-                BonusMartial = mar,
-                BonusStewardship = ste,
-                BonusIntrigue = intg,
-                BonusLearning = lea,
-                BonusProwess = pro
-            };
-
-            _traitService.AddTraitWithExclusives(newTrait, exclIds);
-            Console.WriteLine("Trait added.");
+            if (_traitService.UpdateTrait(existingTrait, exclIds, out var err))
+                Console.WriteLine("Trait updated successfully.");
+            else
+                Console.WriteLine("Error: " + err);
         }
 
-        private static void CreateOrUpdateHolding()
+        private static void DeleteTrait()
         {
-            Console.Write("Holding name: ");
-            var name = Console.ReadLine();
+            Console.WriteLine("Enter Trait ID to delete:");
+            var traitIdInput = Console.ReadLine();
+            if (!int.TryParse(traitIdInput, out var traitId))
+            {
+                Console.WriteLine("Invalid ID.");
+                return;
+            }
 
-            Console.WriteLine("Holding type (0: Castle, 1: Fort, 2: Outpost, 3: Village, 4: Town, 5: City): ");
-            var holdingTypeInput = Console.ReadLine();
-            HoldingType hType = Enum.TryParse<HoldingType>(holdingTypeInput, out var ht) ? ht : HoldingType.Castle;
+            _traitService.DeleteTrait(traitId);
+            Console.WriteLine("Trait deleted successfully.");
+        }
 
-            Console.Write("Region: ");
-            var region = Console.ReadLine();
+        private static void GetTraitDetails(Trait trait)
+        {
+            Console.Write("Trait name: ");
+            trait.Name = Console.ReadLine() ?? "";
 
             Console.Write("Description: ");
-            var desc = Console.ReadLine();
+            trait.Description = Console.ReadLine();
 
-            Console.Write("Supply level (0: Low, 1: Medium, 2: High): ");
-            var supplyInput = Console.ReadLine();
-            SupplyLevel supply = Enum.TryParse<SupplyLevel>(supplyInput, out var sl) ? sl : SupplyLevel.Moderate;
+            Console.Write("Trait type (0: Personality, 1: Education, 2: Other): ");
+            if (Enum.TryParse<TraitType>(Console.ReadLine(), out var tType))
+                trait.Type = tType;
 
-            Console.Write("Troop count: ");
-            var troopsInput = Console.ReadLine();
-            int.TryParse(troopsInput, out var troops);
+            Console.Write("Image URL: ");
+            trait.ImageUrl = Console.ReadLine();
 
-            var newHolding = new Holding
-            {
-                Name = name ?? "",
-                Type = hType,
-                Region = region,
-                Description = desc,
-                SupplyLevel = supply,
-                TroopsCount = troops
-            };
+            Console.WriteLine("Enter stat bonuses (empty = 0):");
+            int Read(string s) => int.TryParse(s, out var x) ? x : 0;
+
+            Console.Write("Diplomacy: ");
+            trait.BonusDiplomacy = Read(Console.ReadLine() ?? "");
+
+            Console.Write("Martial: ");
+            trait.BonusMartial = Read(Console.ReadLine() ?? "");
+
+            Console.Write("Stewardship: ");
+            trait.BonusStewardship = Read(Console.ReadLine() ?? "");
+
+            Console.Write("Intrigue: ");
+            trait.BonusIntrigue = Read(Console.ReadLine() ?? "");
+
+            Console.Write("Learning: ");
+            trait.BonusLearning = Read(Console.ReadLine() ?? "");
+
+            Console.Write("Prowess: ");
+            trait.BonusProwess = Read(Console.ReadLine() ?? "");
+
+            Console.Write("Enter Exclusive Trait IDs separated by comma (e.g. 2,5): ");
+            var exclInput = Console.ReadLine();
+            var exclIds = exclInput?.Split(',', StringSplitOptions.RemoveEmptyEntries)
+                .Select(x => int.TryParse(x.Trim(), out var id) ? id : -1)
+                .Where(x => x != -1).ToList() ?? new List<int>();
+        }
+
+        private static void CreateHolding()
+        {
+            Console.WriteLine("Creating a new holding...");
+            var newHolding = new Holding();
+
+            GetHoldingDetails(newHolding);
 
             _holdingService.AddHolding(newHolding);
-            Console.WriteLine("Holding added.");
+            Console.WriteLine("Holding created successfully.");
         }
+
+        private static void UpdateHolding()
+        {
+            Console.WriteLine("Enter Holding ID to update:");
+            var holdingIdInput = Console.ReadLine();
+            if (!int.TryParse(holdingIdInput, out var holdingId))
+            {
+                Console.WriteLine("Invalid ID.");
+                return;
+            }
+
+            var existingHolding = _holdingService.GetHoldingById(holdingId);
+            if (existingHolding == null)
+            {
+                Console.WriteLine($"Holding with ID {holdingId} not found.");
+                return;
+            }
+
+            Console.WriteLine($"Updating holding: {existingHolding.Name}");
+            GetHoldingDetails(existingHolding);
+
+            _holdingService.UpdateHolding(existingHolding);
+            Console.WriteLine("Holding updated successfully.");
+        }
+
+        private static void DeleteHolding()
+        {
+            Console.WriteLine("Enter Holding ID to delete:");
+            var holdingIdInput = Console.ReadLine();
+            if (!int.TryParse(holdingIdInput, out var holdingId))
+            {
+                Console.WriteLine("Invalid ID.");
+                return;
+            }
+
+            _holdingService.DeleteHolding(holdingId);
+            Console.WriteLine("Holding deleted successfully.");
+        }
+
+        private static void GetHoldingDetails(Holding holding)
+        {
+            Console.Write("Holding name: ");
+            holding.Name = Console.ReadLine() ?? "";
+
+            Console.WriteLine("Holding type (0: Castle, 1: Fort, 2: Outpost, 3: Village, 4: Town, 5: City): ");
+            if (Enum.TryParse<HoldingType>(Console.ReadLine(), out var hType))
+                holding.Type = hType;
+
+            Console.Write("Region: ");
+            holding.Region = Console.ReadLine();
+
+            Console.Write("Description: ");
+            holding.Description = Console.ReadLine();
+
+            Console.Write("Supply level (0: Critical, 1: Low, 2: Moderate, 3: High): ");
+            if (Enum.TryParse<SupplyLevel>(Console.ReadLine(), out var supply))
+                holding.SupplyLevel = supply;
+
+            Console.Write("Troop count: ");
+            if (int.TryParse(Console.ReadLine(), out var troops))
+                holding.TroopsCount = troops;
+        }
+    
+
 
         static void ShowLoadingAnimation()
         {
@@ -368,3 +648,4 @@ namespace ProjectSolamnia
         }
     }
 }
+

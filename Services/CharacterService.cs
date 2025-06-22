@@ -36,89 +36,104 @@ public class CharacterService
             .FirstOrDefault(c => c.Id == id);
     }
     
-    public bool UpdateCharacter(Character character, List<int> traidIds, out string errorMessage)
+    public bool UpdateCharacter(Character character, List<int> traitIds, out string errorMessage)
     {
         errorMessage = "";
-
-        var traits = _dbContext.Traits
-        .Include(t => t.ExclusiveWithTraits)
-        .Where(t => traidIds.Contains(t.Id))       //traitleri DB'den çekme
-        .ToList();
-
-
-        //girilen traitlerin kurala uyup uymadığını belirler
-        if (!_traitService.ValidateTraits(traits, out errorMessage))
+        
+        try 
         {
-            return false;
-        }
+            // Validate traits first
+            var traits = _dbContext.Traits
+                .Include(t => t.ExclusiveWithTraits)
+                .ThenInclude(t => t.ExclusiveWithTrait)
+                .Where(t => traitIds.Contains(t.Id))
+                .ToList();
 
-        Character? existingCharacter = null;
+            Console.WriteLine($"Found traits: {string.Join(", ", traits.Select(t => $"{t.Id}:{t.Name}({t.Type})"))}");
 
-        if (character.Id != 0)
-        {
-            existingCharacter = _dbContext.Characters
-            .Include(c => c.CharacterTraits)
-            .FirstOrDefault(c => c.Id == character.Id);
+            var personalityCount = traits.Count(t => t.Type == TraitType.Personality);
+            var educationCount = traits.Count(t => t.Type == TraitType.Education);
+
+            if (personalityCount != 3)
+            {
+                errorMessage = $"A character must have 3 Personality traits (you have {personalityCount}).";
+                return false;
+            }
+
+            if (educationCount != 1)
+            {
+                errorMessage = $"A character must have 1 Education trait (you have {educationCount}).";
+                return false;
+            }
+
+            Character? existingCharacter = null;
+
+            if (character.Id != 0)
+            {
+                existingCharacter = _dbContext.Characters
+                    .Include(c => c.CharacterTraits)
+                    .FirstOrDefault(c => c.Id == character.Id);
+
+                if (existingCharacter == null)
+                {
+                    errorMessage = $"Character with ID {character.Id} not found.";
+                    return false;
+                }
+            }
 
             if (existingCharacter == null)
             {
-                errorMessage = $"Character with ID {character.Id} not found.";
-                return false;
-            }
-        }
-
-        if (existingCharacter == null)
-        {
-            character.CharacterTraits = new List<CharacterTrait>();
-            foreach (var t in traits)
-            {
-                character.CharacterTraits.Add(new CharacterTrait
+                // Handle new character
+                character.CharacterTraits = new List<CharacterTrait>();
+                foreach (var t in traits)
                 {
-                    TraitId = t.Id,
-                    Trait = t,
-                    Character = character
-                });
+                    character.CharacterTraits.Add(new CharacterTrait
+                    {
+                        TraitId = t.Id,
+                        Trait = t,
+                        Character = character
+                    });
+                }
+                _dbContext.Characters.Add(character);
             }
-            _dbContext.Characters.Add(character);
-        }
-        else
-        {
-            existingCharacter.Name = character.Name;
-            existingCharacter.Age = character.Age;
-            existingCharacter.Rank = character.Rank;
-            existingCharacter.Status = character.Status;
-            existingCharacter.AssignedHoldingId = character.AssignedHoldingId;
-            existingCharacter.Activeduty = character.Activeduty;
-
-            //Sadece base statları değiştiriyor
-            existingCharacter.Diplomacy = character.Diplomacy;
-            existingCharacter.Martial = character.Martial;
-            existingCharacter.Stewardship = character.Stewardship;
-            existingCharacter.Intrigue = character.Intrigue;
-            existingCharacter.Learning = character.Learning;
-            existingCharacter.Prowess = character.Prowess;
-        }
-
-        // Girdi traitler yukarıdaki kontrolden geçtiyse
-        // Eski traitleri siler ve yerine yenilerini koyar
-        // ama yani yanlış girilirse karakterin halihazırdaki traitlerini de silebilir
-        //öyle bi durumda if kullanarak çözebiliriz sanırım
-        existingCharacter.CharacterTraits.Clear();
-
-        foreach (var t in traits)
-        {
-            existingCharacter.CharacterTraits.Add(new CharacterTrait
+            else
             {
-                CharacterId = existingCharacter.Id,
-                TraitId = t.Id,
-                Character = existingCharacter,
-                Trait = t
-            });
-        }
+                // Handle existing character
+                existingCharacter.Name = character.Name;
+                existingCharacter.Age = character.Age;
+                existingCharacter.Rank = character.Rank;
+                existingCharacter.Status = character.Status;
+                existingCharacter.AssignedHoldingId = character.AssignedHoldingId;
+                existingCharacter.ActiveDuty = character.ActiveDuty;
+                existingCharacter.Diplomacy = character.Diplomacy;
+                existingCharacter.Martial = character.Martial;
+                existingCharacter.Stewardship = character.Stewardship;
+                existingCharacter.Intrigue = character.Intrigue;
+                existingCharacter.Learning = character.Learning;
+                existingCharacter.Prowess = character.Prowess;
 
-        //kayıt
-        _dbContext.SaveChanges();
-        return true;
+                // Clear existing traits and add new ones
+                existingCharacter.CharacterTraits.Clear();
+                foreach (var t in traits)
+                {
+                    existingCharacter.CharacterTraits.Add(new CharacterTrait
+                    {
+                        CharacterId = existingCharacter.Id,
+                        TraitId = t.Id,
+                        Character = existingCharacter,
+                        Trait = t
+                    });
+                }
+            }
+
+            _dbContext.SaveChanges();
+            return true;
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"An error occurred: {ex.Message}";
+            return false;
+        }
     }
     public bool DeleteCharacter(int characterId, out string errorMessage)
     {

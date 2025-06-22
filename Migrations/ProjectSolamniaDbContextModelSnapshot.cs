@@ -22,7 +22,7 @@ namespace ProjectSolamnia.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
-                    b.Property<string>("Activeduty")
+                    b.Property<string>("ActiveDuty")
                         .IsRequired()
                         .HasColumnType("TEXT");
 

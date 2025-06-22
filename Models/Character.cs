@@ -12,6 +12,7 @@ namespace ProjectSolamnia{
         public int? AssignedHoldingId { get; set; }
         public Holding? AssignedHolding { get; set; }
         public string ActiveDuty { get; set; }
+        public int Level { get; set; }
 
         public int Diplomacy { get; set; }
         public int Martial { get; set; }

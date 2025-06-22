@@ -105,6 +105,7 @@ public class CharacterService
                 existingCharacter.Status = character.Status;
                 existingCharacter.AssignedHoldingId = character.AssignedHoldingId;
                 existingCharacter.ActiveDuty = character.ActiveDuty;
+                existingCharacter.Level = character.Level;
                 existingCharacter.Diplomacy = character.Diplomacy;
                 existingCharacter.Martial = character.Martial;
                 existingCharacter.Stewardship = character.Stewardship;
@@ -165,59 +166,61 @@ public class CharacterService
 //base statlarla trait bonuslarını birleştirir
 public class EffectiveAttributeCalculator
 {
+    private static int GetWisdomBonus(Character character)
+    {
+        return (int)Math.Floor(2 * Math.Log(character.Age - 14));
+    }
+
+    private static int GetProwessAgeModifier(Character character)
+    {
+        if (character.Age <= 25) 
+            return 1;  // Young bonus
+        if (character.Age > 35) 
+            return -(int)Math.Floor((character.Age - 35) / 8.0);  // Gradual decline
+        return 0;
+    }
+
     public static int EffectiveDiplomacy(Character character)
     {
-        int baseValue = character.Diplomacy;
-        int bonus = character.CharacterTraits
-            .Select(ct => ct.Trait.BonusDiplomacy)
-            .Sum();
-
-        return baseValue + bonus;
+        return character.Diplomacy 
+               + character.CharacterTraits.Sum(ct => ct.Trait.BonusDiplomacy)
+               + GetWisdomBonus(character);
     }
+
     public static int EffectiveMartial(Character character)
     {
-        int baseValue = character.Martial;
-        int bonus = character.CharacterTraits
-            .Select(ct => ct.Trait.BonusMartial)
-            .Sum();
-
-        return baseValue + bonus;
+        return character.Martial 
+               + character.CharacterTraits.Sum(ct => ct.Trait.BonusMartial)
+               + GetWisdomBonus(character);
     }
+
     public static int EffectiveStewardship(Character character)
     {
-        int baseValue = character.Stewardship;
-        int bonus = character.CharacterTraits
-            .Select(ct => ct.Trait.BonusStewardship)
-            .Sum();
-
-        return baseValue + bonus;
+        return character.Stewardship 
+               + character.CharacterTraits.Sum(ct => ct.Trait.BonusStewardship)
+               + GetWisdomBonus(character);
     }
+
     public static int EffectiveIntrigue(Character character)
     {
-        int baseValue = character.Intrigue;
-        int bonus = character.CharacterTraits
-            .Select(ct => ct.Trait.BonusIntrigue)
-            .Sum();
-
-        return baseValue + bonus;
+        return character.Intrigue 
+               + character.CharacterTraits.Sum(ct => ct.Trait.BonusIntrigue)
+               + GetWisdomBonus(character);
     }
+
     public static int EffectiveLearning(Character character)
     {
-        int baseValue = character.Learning;
-        int bonus = character.CharacterTraits
-            .Select(ct => ct.Trait.BonusLearning)
-            .Sum();
-
-        return baseValue + bonus;
+        return character.Learning 
+               + character.CharacterTraits.Sum(ct => ct.Trait.BonusLearning)
+               + GetWisdomBonus(character);
     }
+
     public static int EffectiveProwess(Character character)
     {
-        int baseValue = character.Prowess;
-        int bonus = character.CharacterTraits
-            .Select(ct => ct.Trait.BonusProwess)
-            .Sum();
-
-        return baseValue + bonus;
+        return character.Prowess 
+               + character.CharacterTraits.Sum(ct => ct.Trait.BonusProwess)
+               + character.Level 
+               + GetProwessAgeModifier(character);
     }
-    
 }
+    

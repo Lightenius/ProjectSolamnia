@@ -13,6 +13,7 @@ using Microsoft.AspNetCore.Routing;
 using Microsoft.AspNetCore.Mvc.Rendering;  // This was missing (for ViewContext)
 using Microsoft.AspNetCore.Mvc.ViewEngines; // This was missing (for IViewEngine)
 using Microsoft.EntityFrameworkCore;
+using ProjectSolamnia.Migrations;
 
 namespace ProjectSolamnia.Server;
 
@@ -29,7 +30,7 @@ public class SolamniaServer
 
     public static void Run()
     {
-
+        Console.WriteLine("Starting Solamnia Server...");
         WebApplicationBuilder builder = WebApplication.CreateBuilder();
 
         builder.Services.AddRazorPages().AddRazorRuntimeCompilation(); // TODO: 
@@ -37,8 +38,9 @@ public class SolamniaServer
 
         WebApplication app = builder.Build();
 
+        Console.WriteLine("Solamnia initialize.");
         InitializeServices();
-
+        Console.WriteLine("Solamnia initialize.");
         app.MapGet("/c/{id}", handleCharacter);
         app.MapGet("/t/{id}", handleTrait);
 
@@ -57,7 +59,7 @@ public class SolamniaServer
         services.AddScoped<HoldingService>();
 
         provider = services.BuildServiceProvider();
-
+        Console.WriteLine("Solamnia initialize.");
         var scope = provider.CreateScope();
         _dbContext = scope.ServiceProvider.GetRequiredService<ProjectSolamniaDbContext>();
         _dbContext.Database.Migrate();

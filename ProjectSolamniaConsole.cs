@@ -16,23 +16,23 @@ namespace ProjectSolamnia
 
         public static void Main(string[] args)
         {
-            //       if (args[0] == "-s")
-            //       {
-            //           Server.SolamniaServer.Run();
-            //       }
+                if (args.Length != 0 && args[0] == "-s")
+             {
+                 Server.SolamniaServer.Run();
+             }
+                             Server.SolamniaServer.Run();
 
-
-            //        Console.WriteLine("Project Solamnia Console Application");
-            //        Console.WriteLine("Press any key to start...");
-            //        Console.ReadKey();
-            //        Console.Clear();
-            //        ShowLoadingAnimation();
-            //        Console.Clear();
-            //        Console.WriteLine("Initialization complete. Starting application...\n");
-            //        Console.WriteLine("Loading services and database...");
-            //        Console.WriteLine("Please wait...");
-            //        Thread.Sleep(4000); // Simulate loading time
-            Console.Clear();
+                    Console.WriteLine("Project Solamnia Console Application");
+                    Console.WriteLine("Press any key to start...");
+                    Console.ReadKey();
+                    Console.Clear();
+                    ShowLoadingAnimation();
+                    Console.Clear();
+                    Console.WriteLine("Initialization complete. Starting application...\n");
+                    Console.WriteLine("Loading services and database...");
+                    Console.WriteLine("Please wait...");
+                    Thread.Sleep(4000); 
+                     Console.Clear();
 
             InitializeServices();
             RunApplication();
@@ -71,6 +71,7 @@ namespace ProjectSolamnia
                 Console.WriteLine("4. Manage Characters");
                 Console.WriteLine("5. Manage Traits");
                 Console.WriteLine("6. Manage Holdings");
+                Console.WriteLine("7. Generate Random Character");
                 Console.WriteLine("0. Exit");
                 Console.Write("Your choice: ");
 
@@ -101,6 +102,9 @@ namespace ProjectSolamnia
 
                     case "6":
                         ManageHoldings();
+                        break;
+                    case "7":
+                        GenerateRandomCharacter();
                         break;
 
                     case "0":
@@ -298,7 +302,7 @@ namespace ProjectSolamnia
         private static void UpdateCharacter()
         {
             Console.WriteLine("\n=== Update Character ===");
-            
+
             // Get character ID with validation
             int charId;
             while (true)
@@ -314,19 +318,19 @@ namespace ProjectSolamnia
 
                 var existingCharacter = _characterService.GetCharacterById(charId);
                 if (existingCharacter != null) break;
-                
+
                 Console.WriteLine($"No character found with ID {charId}. Please try again.");
             }
 
             var character = _characterService.GetCharacterById(charId);
-            
+
             // Show current details
             Console.WriteLine($"\nUpdating character: {character.Name}");
             Console.WriteLine($"Current traits: {string.Join(", ", character.CharacterTraits.Select(ct => ct.Trait.Name))}");
 
             // Get updated details
             Console.WriteLine("\nEnter new details (leave blank to keep current value):");
-            
+
             Console.Write($"Name [{character.Name}]: ");
             var nameInput = Console.ReadLine();
             if (!string.IsNullOrWhiteSpace(nameInput))
@@ -346,11 +350,15 @@ namespace ProjectSolamnia
             Console.Write("New status: ");
             if (Enum.TryParse<StatusType>(Console.ReadLine(), out var newStatus))
                 character.Status = newStatus;
-            
+
             Console.Write($"Rank [{character.ActiveDuty}]: ");
             var activeDutyInput = Console.ReadLine();
             if (!string.IsNullOrWhiteSpace(activeDutyInput))
                 character.ActiveDuty = activeDutyInput;
+
+            Console.Write($"Level [{character.Level}]: ");
+            if (int.TryParse(Console.ReadLine(), out var newLevel))
+                character.Level = newLevel;
 
             // Get new traits
             List<int> traitIds;
@@ -368,7 +376,7 @@ namespace ProjectSolamnia
                 var educationCount = traits.Count(t => t.Type == TraitType.Education);
 
                 if (personalityCount == 3 && educationCount == 1) break;
-                
+
                 Console.WriteLine($"Invalid selection. Need exactly 3 Personality + 1 Education traits (you entered {personalityCount}+{educationCount}).");
             }
 
@@ -423,6 +431,12 @@ namespace ProjectSolamnia
             Console.WriteLine("Active Duty:");
             character.ActiveDuty = Console.ReadLine() ?? "";
 
+            Console.WriteLine("Level (default is 1):");
+            if (int.TryParse(Console.ReadLine(), out var level))
+                character.Level = level;
+            else
+                character.Level = 1;
+
             Console.WriteLine("Enter attributes separated by spaces (Diplomacy Martial Stewardship Intrigue Learning Prowess), e.g. '5 5 5 5 5 5':");
             var input = Console.ReadLine();
 
@@ -456,7 +470,7 @@ namespace ProjectSolamnia
         private static void CreateTrait()
         {
             Console.WriteLine("Creating a new trait...");
-            var newTrait = new Trait{Name = ""};
+            var newTrait = new Trait { Name = "" };
 
             GetTraitDetails(newTrait);
 
@@ -625,7 +639,7 @@ namespace ProjectSolamnia
             if (int.TryParse(Console.ReadLine(), out var troops))
                 holding.TroopsCount = troops;
         }
-    
+
 
 
         static void ShowLoadingAnimation()
@@ -645,6 +659,160 @@ namespace ProjectSolamnia
                 Console.SetCursorPosition(Console.CursorLeft - currentDots.Length, Console.CursorTop);
                 i++;
             }
+        }
+        private static void GenerateRandomCharacter()
+        {
+            Console.WriteLine("Generating a random character...");
+            var random = new Random();
+
+            // 1. Generate base attributes (1-12 with precise bell curve distribution)
+            int RollBaseAttribute()
+            {
+                int roll = random.Next(1, 10001);
+                return roll switch
+                {
+                    <= 277 => 2,    // 2.77%
+                    <= 832 => 3,    // 5.55% 
+                    <= 1665 => 4,   // 8.33% 
+                    <= 2776 => 5,   // 11.11% 
+                    <= 4164 => 6,   // 13.88% 
+                    <= 5830 => 7,   // 16.66% 
+                    <= 7218 => 8,   // 13.88% 
+                    <= 8329 => 9,   // 11.11% 
+                    <= 9162 => 10,  // 8.33% 
+                    <= 9717 => 11,  // 5.55% 
+                    _ => 12         // 2.83% (slight variance intentional)
+                };
+            }
+
+            // 2. Generate age (16-70) with weighted distribution toward prime years
+            int age = random.Next(100) switch
+            {
+                < 15 => random.Next(16, 26),  // 15% young (16-25)
+                < 70 => random.Next(26, 46),  // 55% prime (26-45)
+                < 90 => random.Next(46, 61),  // 20% middle-aged (46-60)
+                _ => random.Next(61, 71)      // 10% old (61-70)
+            };
+
+            // 3. Create character with base attributes
+            var newChar = new Character
+            {
+                Name = GetRandomName(random) ?? "Unknown",
+                Age = age,
+                Rank = "", 
+                Status = StatusType.AD,
+                ActiveDuty = "", 
+                Diplomacy = RollBaseAttribute(),
+                Martial = RollBaseAttribute(),
+                Stewardship = RollBaseAttribute(),
+                Intrigue = RollBaseAttribute(),
+                Learning = RollBaseAttribute(),
+                Prowess = RollBaseAttribute(),
+                Level = random.Next(1, 6)
+            };
+
+            // 4. education trait
+
+            var educationType = random.Next(6) switch
+            {
+                0 => "Diplomacy",
+                1 => "Martial",
+                2 => "Stewardship",
+                3 => "Intrigue",
+                4 => "Learning",
+                _ => "Prowess"
+            };
+
+            var educationTrait = _traitService.GetAllTraits()
+                .Where(t => t.Type == TraitType.Education)
+                .Where(t => IsInEducationCategory(t, educationType))
+                .FirstOrDefault(random.Next(100) switch
+                {
+                    < 35 => t => GetTier(t, educationType) == 1,  // Tier 1 (35%)
+                    < 65 => t => GetTier(t, educationType) == 2,  // Tier 2 (30%)
+                    < 85 => t => GetTier(t, educationType) == 3,  // Tier 3 (20%)
+                    < 95 => t => GetTier(t, educationType) == 4,  // Tier 4 (10%)
+                    _ => t => GetTier(t, educationType) == 5      // Tier 5 (5%)
+                });
+
+            static bool IsInEducationCategory(Trait trait, string category)
+            {
+                return category switch
+                {
+                    "Diplomacy" => trait.BonusDiplomacy > 0 && trait.BonusMartial == 0,
+                    "Martial" => trait.BonusMartial > 0 && trait.BonusStewardship == 0,
+                    "Stewardship" => trait.BonusStewardship > 0 && trait.BonusIntrigue == 0,
+                    "Intrigue" => trait.BonusIntrigue > 0 && trait.BonusLearning == 0,
+                    "Learning" => trait.BonusLearning > 0 && trait.BonusProwess == 0,
+                    "Prowess" => trait.BonusProwess > 0,
+                    _ => false
+                };
+            }
+
+            static int GetTier(Trait trait, string category)
+            {
+                return category switch
+                {
+                    "Diplomacy" => trait.BonusDiplomacy / 2,
+                    "Martial" => trait.BonusMartial / 2,
+                    "Stewardship" => trait.BonusStewardship / 2,
+                    "Intrigue" => trait.BonusIntrigue / 2,
+                    "Learning" => trait.BonusLearning / 2,
+                    "Prowess" => trait.BonusProwess, // Prowess uses direct values (1-4)
+                    _ => 1
+                };
+            }
+
+            // 5. Select 3 personality traits (no duplicates, no conflicts)
+            var personalityTraits = _traitService.GetAllTraits()
+                .Where(t => t.Type == TraitType.Personality)
+                .OrderBy(_ => random.Next())
+                .Take(3)
+                .ToList();
+
+            // 6. Prepare trait IDs
+            var selectedTraitIds = personalityTraits?
+                .Select(t => t.Id)
+                .ToList() ?? new List<int>();
+
+            if (educationTrait != null)
+            {
+                selectedTraitIds.Add(educationTrait.Id);
+            }
+
+            // 7. Save and display results
+            if (_characterService.UpdateCharacter(newChar, selectedTraitIds, out var err))
+            {
+                Console.WriteLine("\n=== RANDOM CHARACTER ===");
+                Console.WriteLine($"{newChar.Name}, {newChar.Age} years old");
+                Console.WriteLine($"Rank: {newChar.Rank}, Status: {newChar.Status}");
+
+                Console.WriteLine("\nBase Attributes:");
+                Console.WriteLine($"DIP: {newChar.Diplomacy} | MAR: {newChar.Martial} | STE: {newChar.Stewardship}");
+                Console.WriteLine($"INT: {newChar.Intrigue} | LEA: {newChar.Learning} | PRO: {newChar.Prowess}");
+
+                Console.WriteLine("\nEffective Attributes:");
+                Console.WriteLine($"DIP: {EffectiveAttributeCalculator.EffectiveDiplomacy(newChar)}");
+                Console.WriteLine($"MAR: {EffectiveAttributeCalculator.EffectiveMartial(newChar)}");
+                Console.WriteLine($"PRO: {EffectiveAttributeCalculator.EffectiveProwess(newChar)} (Level {newChar.Level})");
+
+                Console.WriteLine("\nTraits:");
+                Console.WriteLine($"Education: {educationTrait?.Name ?? "None"}");
+                Console.WriteLine($"Personality: {string.Join(", ", personalityTraits.Select(t => t.Name))}");
+            }
+            else
+            {
+                Console.WriteLine("Error generating character: " + err);
+            }
+        }
+
+        private static string GetRandomName(Random random)
+        {
+            string[] firstNames = { "Alric", "Beldar", "Caramon", "Daric", "Elstan", "Farlan", "Garron", "Hadric", "Istan", "Jerek", "Kael", "Loran", "Malric", "Noric", "Orlan", "Perrin", "Quen", "Roderic", "Saren", "Talan", "Ulric", "Varek", "Wystan", "Yorik", "Zevan", "Arvik", "Baelan", "Corric", "Davren", "Edric", "Faelan", "Garik", "Hroth", "Isarn", "Joric", "Kendrin", "Lucan", "Merek", "Narek", "Oberan", "Pellen", "Ralgar", "Soran", "Tyric", "Uthen", "Wardel", "Xandor", "Yarik", "Zorlan", "Alina", "Briala", "Calina", "Dalia", "Elira", "Felyne", "Genna", "Halia", "Isolde", "Jessa", "Kaela", "Lira", "Mira", "Norra", "Orla", "Pyria", "Quelana", "Rinna", "Saria", "Tessa", "Ursa", "Vanya", "Wynna", "Ysara", "Zareen", "Annel", "Baeli", "Cassira", "Delene", "Evara", "Faylen", "Gressa", "Harlia", "Iliora", "Janeth", "Kyla", "Lioren", "Melka", "Nyssa", "Orelle", "Prila", "Ravena", "Selene", "Tahlia", "Ulenna", "Valenne", "Wrena", "Xalia", "Yvanna", "Zinnia"
+                                    };
+            return $"{firstNames[random.Next(firstNames.Length)]}";
+
+
         }
     }
 }

@@ -16,23 +16,23 @@ namespace ProjectSolamnia
 
         public static void Main(string[] args)
         {
-                if (args.Length != 0 && args[0] == "-s")
-             {
-                 Server.SolamniaServer.Run();
-             }
-                             Server.SolamniaServer.Run();
+        //      if (args.Length != 0 && args[0] == "-s")
+        //   {
+        //       Server.SolamniaServer.Run();
+        //   }
+        //                   Server.SolamniaServer.Run();
 
-                    Console.WriteLine("Project Solamnia Console Application");
-                    Console.WriteLine("Press any key to start...");
-                    Console.ReadKey();
-                    Console.Clear();
-                    ShowLoadingAnimation();
-                    Console.Clear();
-                    Console.WriteLine("Initialization complete. Starting application...\n");
-                    Console.WriteLine("Loading services and database...");
-                    Console.WriteLine("Please wait...");
-                    Thread.Sleep(4000); 
-                     Console.Clear();
+        //          Console.WriteLine("Project Solamnia Console Application");
+        //          Console.WriteLine("Press any key to start...");
+        //          Console.ReadKey();
+        //          Console.Clear();
+        //          ShowLoadingAnimation();
+        //          Console.Clear();
+        //          Console.WriteLine("Initialization complete. Starting application...\n");
+        //          Console.WriteLine("Loading services and database...");
+        //          Console.WriteLine("Please wait...");
+        //          Thread.Sleep(4000); 
+        //           Console.Clear();
 
             InitializeServices();
             RunApplication();
@@ -681,7 +681,7 @@ namespace ProjectSolamnia
                     <= 8329 => 9,   // 11.11% 
                     <= 9162 => 10,  // 8.33% 
                     <= 9717 => 11,  // 5.55% 
-                    _ => 12         // 2.83% (slight variance intentional)
+                    _ => 12         // 2.83% 
                 };
             }
 
@@ -763,7 +763,7 @@ namespace ProjectSolamnia
                 };
             }
 
-            // 5. Select 3 personality traits (no duplicates, no conflicts)
+            // 5. Select 3 personality traits
             var personalityTraits = _traitService.GetAllTraits()
                 .Where(t => t.Type == TraitType.Personality)
                 .OrderBy(_ => random.Next())
@@ -794,6 +794,9 @@ namespace ProjectSolamnia
                 Console.WriteLine("\nEffective Attributes:");
                 Console.WriteLine($"DIP: {EffectiveAttributeCalculator.EffectiveDiplomacy(newChar)}");
                 Console.WriteLine($"MAR: {EffectiveAttributeCalculator.EffectiveMartial(newChar)}");
+                Console.WriteLine($"STE: {EffectiveAttributeCalculator.EffectiveStewardship(newChar)}");
+                Console.WriteLine($"INT: {EffectiveAttributeCalculator.EffectiveIntrigue(newChar)}");
+                Console.WriteLine($"LEA: {EffectiveAttributeCalculator.EffectiveLearning(newChar)}");
                 Console.WriteLine($"PRO: {EffectiveAttributeCalculator.EffectiveProwess(newChar)} (Level {newChar.Level})");
 
                 Console.WriteLine("\nTraits:");
@@ -808,11 +811,78 @@ namespace ProjectSolamnia
 
         private static string GetRandomName(Random random)
         {
-            string[] firstNames = { "Alric", "Beldar", "Caramon", "Daric", "Elstan", "Farlan", "Garron", "Hadric", "Istan", "Jerek", "Kael", "Loran", "Malric", "Noric", "Orlan", "Perrin", "Quen", "Roderic", "Saren", "Talan", "Ulric", "Varek", "Wystan", "Yorik", "Zevan", "Arvik", "Baelan", "Corric", "Davren", "Edric", "Faelan", "Garik", "Hroth", "Isarn", "Joric", "Kendrin", "Lucan", "Merek", "Narek", "Oberan", "Pellen", "Ralgar", "Soran", "Tyric", "Uthen", "Wardel", "Xandor", "Yarik", "Zorlan", "Alina", "Briala", "Calina", "Dalia", "Elira", "Felyne", "Genna", "Halia", "Isolde", "Jessa", "Kaela", "Lira", "Mira", "Norra", "Orla", "Pyria", "Quelana", "Rinna", "Saria", "Tessa", "Ursa", "Vanya", "Wynna", "Ysara", "Zareen", "Annel", "Baeli", "Cassira", "Delene", "Evara", "Faylen", "Gressa", "Harlia", "Iliora", "Janeth", "Kyla", "Lioren", "Melka", "Nyssa", "Orelle", "Prila", "Ravena", "Selene", "Tahlia", "Ulenna", "Valenne", "Wrena", "Xalia", "Yvanna", "Zinnia"
-                                    };
-            return $"{firstNames[random.Next(firstNames.Length)]}";
+            string[] maleNames = 
+            {
+                "Aaron", "Abbo", "Abel", "Abraham", "Absalom", "Achard", "Achilles", "Acledulf", "Aclefrid", "Aclehard", 
+                "Acleman", "Aclemund", "Actard", "Actwin", "Adalald", "Adalbald", "Adalbod", "Adalfrid", "Adalgrim", 
+                "Adalhar", "Adalhelm", "Adalmar", "Adalmund", "Adalrad", "Adalwald", "Adam", "Adelard", "Ademar", 
+                "Adolf", "Adrian", "Adrulf", "Aicard", "Ailbert", "Ailhard", "Ainard", "Alain", "Alaric", "Alban", 
+                "Alberic", "Albert", "Albo", "Aldebrand", "Aldemar", "Aldrich", "Aldwin", "Alexander", "Alfgar", 
+                "Alfhelm", "Alfred", "Alfwin", "Alphonse", "Alric", "Alvaro", "Alwin", "Amadeus", "Ambrose", "Amis", 
+                "Ancel", "Andrew", "Anselm", "Ansgar", "Anzo", "Apollonius", "Archibald", "Aristotle", "Arnold", 
+                "Arnulf", "Artald", "Arthur", "Athelstan", "Aubrey", "Audoen", "August", "Aurelian", "Aurelius", 
+                "Austin", "Averroes", "Avo", "Aylmer", "Baldwin", "Balthasar", "Barnabas", "Bartholomew", "Basil", 
+                "Bastian", "Benedict", "Benjamin", "Bernard", "Berengar", "Bertram", "Bjorn", "Blaise", "Bodo", 
+                "Boguslav", "Boleslav", "Boniface", "Boso", "Brand", "Brian", "Brice", "Bruno", "Cadell", "Cadwallon", 
+                "Caesar", "Caius", "Casimir", "Cassian", "Charles", "Christian", "Christopher", "Claudian", "Conrad", 
+                "Constantine", "Corbinian", "Crispin", "Cuthbert", "Cyprian", "Cyril", "Dagobert", "Damian", "Daniel", 
+                "David", "Denis", "Dietrich", "Dominic", "Donald", "Drogo", "Dunstan", "Edgar", "Edmund", "Edward", 
+                "Edwin", "Elias", "Eliezer", "Emery", "Engelbert", "Ephraim", "Erik", "Ernest", "Eugene", "Eustace", 
+                "Everard", "Favian", "Felix", "Ferdinand", "Fulk", "Gabriel", "Gawain", "Geoffrey", "George", "Gerard", 
+                "Gervase", "Gilbert", "Giles", "Godfrey", "Godric", "Godwin", "Gregory", "Grimbald", "Gualter", "Gunnar", 
+                "Guy", "Harold", "Hector", "Henry", "Herbert", "Hildebrand", "Hincmar", "Hugh", "Humbert", "Humphrey", 
+                "Ivo", "Jasper", "Jerome", "John", "Jolan", "Joseph", "Joshua", "Julian", "Julius", "Justus", "Kenelm", 
+                "Lambert", "Laurence", "Leif", "Leonard", "Leopold", "Lothar", "Louis", "Lucian", "Ludovic", "Magnus", 
+                "Malcolm", "Marcus", "Martin", "Matthew", "Maurice", "Michael", "Nicholas", "Odo", "Oliver", "Orson", 
+                "Oswald", "Otho", "Otto", "Pascal", "Patrick", "Paul", "Percival", "Peter", "Philip", "Raimond", "Ralph", 
+                "Raymond", "Reginald", "Reinbald", "Richard", "Robert", "Roderick", "Roger", "Roland", "Rolf", "Rupert", 
+                "Samson", "Sebastian", "Siegfried", "Sigismund", "Simon", "Stephen", "Tancred", "Theobald", "Theodore", 
+                "Theodoric", "Thomas", "Thurstan", "Tiberius", "Timothy", "Tobias", "Torsten", "Tristan", "Ulrich", 
+                "Ulysses", "Valentin", "Victor", "Vincent", "Virgil", "Vitalis", "Vivian", "Waleran", "Walter", "Warin", 
+                "Wenceslas", "Wilfred", "William", "Wulfric", "Xavier", "Yves", "Zachary"
+            };
 
+            string[] femaleNames = 
+            {
+                "Adelaide", "Adelina", "Agatha", "Agnes", "Alba", "Aldith", "Alexandra", "Alice", "Amabel", "Amalia", 
+                "Amice", "Anastasia", "Andrea", "Angela", "Anna", "Anne", "Avelina", "Beatrice", "Berenice", "Brigid", 
+                "Cecilia", "Clarimond", "Constance", "Drusilla", "Eleanor", "Elizabeth", "Emmeline", "Eugenia", 
+                "Euphemia", "Felicia", "Florence", "Genevieve", "Gisela", "Gratiana", "Helena", "Hildegard", "Idony", 
+                "Isabel", "Joan", "Juliana", "Katherine", "Leah", "Lucia", "Margaret", "Maria", "Matilda", "Mirabel", 
+                "Olivia", "Philippa", "Rosamund", "Sabina", "Sophia", "Theodora", "Ursula", "Valentina", "Winifred", "Ysabel"
+            };
 
+            string[] homeLand =
+            {
+                "uth Duskhollow", "uth Ironreach", "uth Wolfshearth", "uth Bleakmarsh", "uth Rivenrock", "uth Thornwold",
+                "uth Shadowcrest", "uth Stonemark", "uth Kjeldur", "uth Ulfdale", "uth Hargoth’s Stand", "uth Vexmire",
+                "uth Grimspire", "uth Duskrend", "uth Frostbite", "uth Raven’s Maw", "uth Briarstoke", "uth Witchmelt",
+                "uth Ashthroat", "uth Deadspan", "uth Hearthscar", "uth Blightstoke", "uth Moorgrave", "uth Blackmire",
+                "uth Stoneharrow", "uth Wyrmfen", "uth Frostsink", "uth Grimbreach", "uth Vaelmoor", "uth Stormcrag",
+                "uth Caergoth", "uth Edgerton", "uth Harrying", "uth Hamilton", "uth Lockhart", "uth Starport",
+                "uth Stimpton", "uth Restglen", "uth Rening", "uth O'Call", "uth Di Estra", "uth Firstward", "uth Gorbie",
+                "uth Wtdel", "uth Ironrock", "uth Portsmith", "uth Deepdel", "uth Gwyntarr", "uth Lytburg", "uth Thelgaard",
+                "uth Brasdel", "uth Luinstat", "uth Sage", "uth Kyre", "uth Vex", "uth Ravenscar", "uth Cairngorn",
+                "uth di Caela", "uth Solanthus", "uth Arnal", "uth Patina", "uth Tresvka", "uth Hartford", "uth Jansburg",
+                "uth Auchunan", "uth Egaard", "uth Valoria", "uth Forestedge", "uth Delgaard", "uth Relgoth", "uth Ryn",
+                "uth Arngrim", "uth Brightblade", "uth Southford", "uth Naergoth", "uth Tearford", "uth Starmont",
+                "uth Gaarlus", "uth Navarre", "uth Viranesh", "uth Ligett", "uth Vogler", "uth Kalaman", "uth Witdell",
+                "uth Manydell", "uth Gander", "uth Hargoth", "uth Winterholm", "uth Potter's Mill", "uth Korval",
+                "uth Godnest", "uth Palanthas", "uth Dawnfort", "uth Highrule", "uth Varus", "di Calea", "de Montrefeltrp",
+                "Boyle", "Ashworth", "Winslow", "Pathwarden", "Donner"
+             }; 
+
+            bool isMale = random.Next(2) == 0; 
+            string firstName = isMale 
+                ? maleNames[random.Next(maleNames.Length)] 
+                : femaleNames[random.Next(femaleNames.Length)];
+            
+            string title = isMale ? "Sir" : "Dame";
+            string home = homeLand.Length > 0 
+                ? homeLand[random.Next(homeLand.Length)] 
+                : "Homeland"; // Fallback if empty
+            
+            return $"{title} {firstName} {homeLand}";
         }
     }
 }

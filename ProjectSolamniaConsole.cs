@@ -828,7 +828,7 @@ namespace ProjectSolamnia
                 "Constantine", "Corbinian", "Crispin", "Cuthbert", "Cyprian", "Cyril", "Dagobert", "Damian", "Daniel", 
                 "David", "Denis", "Dietrich", "Dominic", "Donald", "Drogo", "Dunstan", "Edgar", "Edmund", "Edward", 
                 "Edwin", "Elias", "Eliezer", "Emery", "Engelbert", "Ephraim", "Erik", "Ernest", "Eugene", "Eustace", 
-                "Everard", "Favian", "Felix", "Ferdinand", "Fulk", "Gabriel", "Gawain", "Geoffrey", "George", "Gerard", 
+                "Everard", "Favian", "Felix", "Ferdinand", "Fulk", "Gabriel", "Cumcision", "Gawain", "Geoffrey", "George", "Gerard", 
                 "Gervase", "Gilbert", "Giles", "Godfrey", "Godric", "Godwin", "Gregory", "Grimbald", "Gualter", "Gunnar", 
                 "Guy", "Harold", "Hector", "Henry", "Herbert", "Hildebrand", "Hincmar", "Hugh", "Humbert", "Humphrey", 
                 "Ivo", "Jasper", "Jerome", "John", "Jolan", "Joseph", "Joshua", "Julian", "Julius", "Justus", "Kenelm", 
@@ -882,7 +882,7 @@ namespace ProjectSolamnia
                 ? homeLand[random.Next(homeLand.Length)] 
                 : "Homeland"; // Fallback if empty
             
-            return $"{title} {firstName} {homeLand}";
+            return $"{title} {firstName} {home}";
         }
     }
 }

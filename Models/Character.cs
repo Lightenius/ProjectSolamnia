@@ -1,6 +1,6 @@
 namespace ProjectSolamnia{
 
-    //karakterleri define eden sayfa
+    // character entity to represent individuals in the game world
     public class Character
     {
         public int Id { get; set; }

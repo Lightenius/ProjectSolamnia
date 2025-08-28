@@ -1,6 +1,6 @@
 namespace ProjectSolamnia{}
 
-// burada statüs durumlarının çeşitleri bulunuyoru
+// Enum to represent various status types for characters
 public enum StatusType
 {
     AD, //Active Duty

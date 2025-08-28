@@ -5,8 +5,7 @@ using ProjectSolamnia;
 
 namespace ProjectSolamnia {}
 
-//buraya karakter yaratımı kurallarını yazacağım
-// burada new character ve update character yazmaktadır
+// Service to manage Character entities and their traits
 
 public class CharacterService
 {
@@ -36,11 +35,17 @@ public class CharacterService
             .FirstOrDefault(c => c.Id == id);
     }
     
+    public bool CreateCharacter(Character character, List<int> traitIds, out string errorMessage)
+    {
+        errorMessage = "";
+        character.Id = 0; // Yeni karakter için ID sıfırlanır
+        return UpdateCharacter(character, traitIds, out errorMessage);
+    }
     public bool UpdateCharacter(Character character, List<int> traitIds, out string errorMessage)
     {
         errorMessage = "";
-        
-        try 
+
+        try
         {
             // Validate traits first
             var traits = _dbContext.Traits

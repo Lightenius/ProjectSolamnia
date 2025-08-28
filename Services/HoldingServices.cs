@@ -4,6 +4,8 @@ using SQLitePCL;
 
 namespace ProjectSolamnia { }
 
+// Service to manage Holding entities
+
 public class HoldingService
 {
     private readonly ProjectSolamniaDbContext _dbContext;

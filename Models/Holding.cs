@@ -1,6 +1,6 @@
 namespace ProjectSolamnia
 {
-    // Holdingler için referans entitysi
+    // Holding entity to represent locations like castles, towns, etc.
 
     public class Holding
     {

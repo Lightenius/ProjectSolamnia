@@ -1,6 +1,6 @@
 namespace ProjectSolamnia{}
 
-// bu sayfada traitlerin alabileceği alternatifleri belirliyor
+// Enum to represent various trait types
 public enum TraitType
 {
     Personality,

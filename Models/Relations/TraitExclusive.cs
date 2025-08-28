@@ -1,5 +1,7 @@
 namespace ProjectSolamnia
 {
+    // Junction entity to represent mutually exclusive relationships between Traits
+    
     public class TraitExclusive
     {
         public int TraitId { get; set; }

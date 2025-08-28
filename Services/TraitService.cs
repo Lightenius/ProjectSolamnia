@@ -1,8 +1,9 @@
 using Microsoft.EntityFrameworkCore;
 using ProjectSolamnia;
 
-namespace ProjectSolamnia{}
-//buraya trait yaratımı kurallarını yazacağım
+namespace ProjectSolamnia { }
+
+// Service to manage Trait entities and their exclusives
 
 public class TraitService
 {

@@ -6,6 +6,7 @@ using ProjectSolamnia.Migrations;
 
 namespace ProjectSolamnia
 {
+    // Console application entry point and main program logic
     public class Program
     {
         private static ServiceProvider provider = null!;
@@ -16,23 +17,23 @@ namespace ProjectSolamnia
 
         public static void Main(string[] args)
         {
-        //      if (args.Length != 0 && args[0] == "-s")
-        //   {
-        //       Server.SolamniaServer.Run();
-        //   }
-        //                   Server.SolamniaServer.Run();
+            //      if (args.Length != 0 && args[0] == "-s")
+            //   {
+            //       Server.SolamniaServer.Run();
+            //   }
+            //                 Server.SolamniaServer.Run();
 
-        //          Console.WriteLine("Project Solamnia Console Application");
-        //          Console.WriteLine("Press any key to start...");
-        //          Console.ReadKey();
-        //          Console.Clear();
-        //          ShowLoadingAnimation();
-        //          Console.Clear();
-        //          Console.WriteLine("Initialization complete. Starting application...\n");
-        //          Console.WriteLine("Loading services and database...");
-        //          Console.WriteLine("Please wait...");
-        //          Thread.Sleep(4000); 
-        //           Console.Clear();
+            //          Console.WriteLine("Project Solamnia Console Application");
+            //          Console.WriteLine("Press any key to start...");
+            //          Console.ReadKey();
+            //          Console.Clear();
+            //          ShowLoadingAnimation();
+            //          Console.Clear();
+            //          Console.WriteLine("Initialization complete. Starting application...\n");
+            //          Console.WriteLine("Loading services and database...");
+            //          Console.WriteLine("Please wait...");
+            //          Thread.Sleep(4000); 
+            //           Console.Clear();
 
             InitializeServices();
             RunApplication();
@@ -351,7 +352,7 @@ namespace ProjectSolamnia
             if (Enum.TryParse<StatusType>(Console.ReadLine(), out var newStatus))
                 character.Status = newStatus;
 
-            Console.Write($"Rank [{character.ActiveDuty}]: ");
+            Console.Write($"Active Duty [{character.ActiveDuty}]: ");
             var activeDutyInput = Console.ReadLine();
             if (!string.IsNullOrWhiteSpace(activeDutyInput))
                 character.ActiveDuty = activeDutyInput;
@@ -464,7 +465,6 @@ namespace ProjectSolamnia
             character.Intrigue = attributes[3];
             character.Learning = attributes[4];
             character.Prowess = attributes[5];
-            character.ActiveDuty = "";
         }
 
         private static void CreateTrait()
@@ -699,9 +699,9 @@ namespace ProjectSolamnia
             {
                 Name = GetRandomName(random) ?? "Unknown",
                 Age = age,
-                Rank = "", 
+                Rank = "",
                 Status = StatusType.AD,
-                ActiveDuty = "", 
+                ActiveDuty = "",
                 Diplomacy = RollBaseAttribute(),
                 Martial = RollBaseAttribute(),
                 Stewardship = RollBaseAttribute(),
@@ -811,44 +811,44 @@ namespace ProjectSolamnia
 
         private static string GetRandomName(Random random)
         {
-            string[] maleNames = 
+            string[] maleNames =
             {
-                "Aaron", "Abbo", "Abel", "Abraham", "Absalom", "Achard", "Achilles", "Acledulf", "Aclefrid", "Aclehard", 
-                "Acleman", "Aclemund", "Actard", "Actwin", "Adalald", "Adalbald", "Adalbod", "Adalfrid", "Adalgrim", 
-                "Adalhar", "Adalhelm", "Adalmar", "Adalmund", "Adalrad", "Adalwald", "Adam", "Adelard", "Ademar", 
-                "Adolf", "Adrian", "Adrulf", "Aicard", "Ailbert", "Ailhard", "Ainard", "Alain", "Alaric", "Alban", 
-                "Alberic", "Albert", "Albo", "Aldebrand", "Aldemar", "Aldrich", "Aldwin", "Alexander", "Alfgar", 
-                "Alfhelm", "Alfred", "Alfwin", "Alphonse", "Alric", "Alvaro", "Alwin", "Amadeus", "Ambrose", "Amis", 
-                "Ancel", "Andrew", "Anselm", "Ansgar", "Anzo", "Apollonius", "Archibald", "Aristotle", "Arnold", 
-                "Arnulf", "Artald", "Arthur", "Athelstan", "Aubrey", "Audoen", "August", "Aurelian", "Aurelius", 
-                "Austin", "Averroes", "Avo", "Aylmer", "Baldwin", "Balthasar", "Barnabas", "Bartholomew", "Basil", 
-                "Bastian", "Benedict", "Benjamin", "Bernard", "Berengar", "Bertram", "Bjorn", "Blaise", "Bodo", 
-                "Boguslav", "Boleslav", "Boniface", "Boso", "Brand", "Brian", "Brice", "Bruno", "Cadell", "Cadwallon", 
-                "Caesar", "Caius", "Casimir", "Cassian", "Charles", "Christian", "Christopher", "Claudian", "Conrad", 
-                "Constantine", "Corbinian", "Crispin", "Cuthbert", "Cyprian", "Cyril", "Dagobert", "Damian", "Daniel", 
-                "David", "Denis", "Dietrich", "Dominic", "Donald", "Drogo", "Dunstan", "Edgar", "Edmund", "Edward", 
-                "Edwin", "Elias", "Eliezer", "Emery", "Engelbert", "Ephraim", "Erik", "Ernest", "Eugene", "Eustace", 
-                "Everard", "Favian", "Felix", "Ferdinand", "Fulk", "Gabriel", "Cumcision", "Gawain", "Geoffrey", "George", "Gerard", 
-                "Gervase", "Gilbert", "Giles", "Godfrey", "Godric", "Godwin", "Gregory", "Grimbald", "Gualter", "Gunnar", 
-                "Guy", "Harold", "Hector", "Henry", "Herbert", "Hildebrand", "Hincmar", "Hugh", "Humbert", "Humphrey", 
-                "Ivo", "Jasper", "Jerome", "John", "Jolan", "Joseph", "Joshua", "Julian", "Julius", "Justus", "Kenelm", 
-                "Lambert", "Laurence", "Leif", "Leonard", "Leopold", "Lothar", "Louis", "Lucian", "Ludovic", "Magnus", 
-                "Malcolm", "Marcus", "Martin", "Matthew", "Maurice", "Michael", "Nicholas", "Odo", "Oliver", "Orson", 
-                "Oswald", "Otho", "Otto", "Pascal", "Patrick", "Paul", "Percival", "Peter", "Philip", "Raimond", "Ralph", 
-                "Raymond", "Reginald", "Reinbald", "Richard", "Robert", "Roderick", "Roger", "Roland", "Rolf", "Rupert", 
-                "Samson", "Sebastian", "Siegfried", "Sigismund", "Simon", "Stephen", "Tancred", "Theobald", "Theodore", 
-                "Theodoric", "Thomas", "Thurstan", "Tiberius", "Timothy", "Tobias", "Torsten", "Tristan", "Ulrich", 
-                "Ulysses", "Valentin", "Victor", "Vincent", "Virgil", "Vitalis", "Vivian", "Waleran", "Walter", "Warin", 
+                "Aaron", "Abbo", "Abel", "Abraham", "Absalom", "Achard", "Achilles", "Acledulf", "Aclefrid", "Aclehard",
+                "Acleman", "Aclemund", "Actard", "Actwin", "Adalald", "Adalbald", "Adalbod", "Adalfrid", "Adalgrim",
+                "Adalhar", "Adalhelm", "Adalmar", "Adalmund", "Adalrad", "Adalwald", "Adam", "Adelard", "Ademar",
+                "Adolf", "Adrian", "Adrulf","Ağda", "Aicard", "Ailbert", "Ailhard", "Ainard", "Alain", "Alaric", "Alban",
+                "Alberic", "Albert", "Albo", "Aldebrand", "Aldemar", "Aldrich", "Aldwin", "Alexander", "Alfgar",
+                "Alfhelm", "Alfred", "Alfwin", "Alphonse", "Alric", "Alvaro", "Alwin", "Amadeus", "Ambrose", "Amis",
+                "Ancel", "Andrew", "Anselm", "Ansgar", "Anzo", "Apollonius", "Archibald", "Aristotle", "Arnold",
+                "Arnulf", "Artald", "Arthur", "Athelstan", "Aubrey", "Audoen", "August", "Aurelian", "Aurelius",
+                "Austin", "Averroes", "Avo", "Aylmer", "Baldwin", "Balthasar", "Barnabas", "Bartholomew", "Basil",
+                "Bastian", "Benedict", "Benjamin", "Bernard", "Berengar", "Bertram", "Bjorn", "Blaise", "Bodo",
+                "Boguslav", "Boleslav", "Boniface", "Boso", "Brand", "Brian", "Brice", "Bruno", "Cadell", "Cadwallon",
+                "Caesar", "Caius", "Casimir", "Cassian", "Charles", "Christian", "Christopher", "Claudian", "Conrad",
+                "Constantine", "Corbinian", "Crispin", "Cuthbert", "Cyprian", "Cyril", "Dagobert", "Damian", "Daniel",
+                "David", "Denis", "Dietrich", "Dominic", "Donald", "Drogo", "Dunstan", "Edgar", "Edmund", "Edward",
+                "Edwin", "Elias", "Eliezer", "Emery", "Engelbert", "Ephraim", "Erik", "Ernest", "Eugene", "Eustace",
+                "Everard", "Favian", "Felix", "Ferdinand", "Fulk", "Gabriel", "Cumcision", "Gawain", "Geoffrey", "George", "Gerard",
+                "Gervase", "Gilbert", "Giles", "Godfrey", "Godric", "Godwin", "Gregory", "Grimbald", "Gualter", "Gunnar",
+                "Guy", "Harold", "Hector", "Henry", "Herbert", "Hildebrand", "Hincmar", "Hugh", "Humbert", "Humphrey",
+                "Ivo", "Jasper", "Jerome", "John", "Jolan", "Joseph", "Joshua", "Julian", "Julius", "Justus", "Kenelm",
+                "Lambert", "Laurence", "Leif", "Leonard", "Leopold", "Lothar", "Louis", "Lucian", "Ludovic", "Magnus",
+                "Malcolm", "Marcus", "Martin", "Matthew", "Maurice", "Michael", "Nicholas", "Odo", "Oliver", "Orson",
+                "Oswald", "Otho", "Otto", "Pascal", "Patrick", "Paul", "Percival", "Peter", "Philip", "Raimond", "Ralph",
+                "Raymond", "Reginald", "Reinbald", "Richard", "Robert", "Roderick", "Roger", "Roland", "Rolf", "Rupert",
+                "Samson", "Sebastian", "Siegfried", "Sigismund", "Simon", "Stephen", "Tancred", "Theobald", "Theodore",
+                "Theodoric", "Thomas", "Thurstan", "Tiberius", "Timothy", "Tobias", "Torsten", "Tristan", "Ulrich",
+                "Ulysses", "Valentin", "Victor", "Vincent", "Virgil", "Vitalis", "Vivian", "Waleran", "Walter", "Warin",
                 "Wenceslas", "Wilfred", "William", "Wulfric", "Xavier", "Yves", "Zachary"
             };
 
-            string[] femaleNames = 
+            string[] femaleNames =
             {
-                "Adelaide", "Adelina", "Agatha", "Agnes", "Alba", "Aldith", "Alexandra", "Alice", "Amabel", "Amalia", 
-                "Amice", "Anastasia", "Andrea", "Angela", "Anna", "Anne", "Avelina", "Beatrice", "Berenice", "Brigid", 
-                "Cecilia", "Clarimond", "Constance", "Drusilla", "Eleanor", "Elizabeth", "Emmeline", "Eugenia", 
-                "Euphemia", "Felicia", "Florence", "Genevieve", "Gisela", "Gratiana", "Helena", "Hildegard", "Idony", 
-                "Isabel", "Joan", "Juliana", "Katherine", "Leah", "Lucia", "Margaret", "Maria", "Matilda", "Mirabel", 
+                "Adelaide", "Adelina", "Agatha", "Agnes", "Alba", "Aldith", "Alexandra", "Alice", "Amabel", "Amalia",
+                "Amice", "Anastasia", "Andrea", "Angela", "Anna", "Anne", "Avelina", "Beatrice", "Berenice", "Brigid",
+                "Cecilia", "Clarimond", "Constance", "Drusilla", "Eleanor", "Elizabeth", "Emmeline", "Eugenia",
+                "Euphemia", "Felicia", "Florence", "Genevieve", "Gisela", "Gratiana", "Helena", "Hildegard", "Idony",
+                "Isabel", "Joan", "Juliana", "Katherine", "Leah", "Lucia", "Margaret", "Maria", "Matilda", "Mirabel",
                 "Olivia", "Philippa", "Rosamund", "Sabina", "Sophia", "Theodora", "Ursula", "Valentina", "Winifred", "Ysabel"
             };
 
@@ -870,18 +870,18 @@ namespace ProjectSolamnia
                 "uth Manydell", "uth Gander", "uth Hargoth", "uth Winterholm", "uth Potter's Mill", "uth Korval",
                 "uth Godnest", "uth Palanthas", "uth Dawnfort", "uth Highrule", "uth Varus", "di Calea", "de Montrefeltrp",
                 "Boyle", "Ashworth", "Winslow", "Pathwarden", "Donner"
-             }; 
+             };
 
-            bool isMale = random.Next(2) == 0; 
-            string firstName = isMale 
-                ? maleNames[random.Next(maleNames.Length)] 
+            bool isMale = random.Next(2) == 0;
+            string firstName = isMale
+                ? maleNames[random.Next(maleNames.Length)]
                 : femaleNames[random.Next(femaleNames.Length)];
-            
+
             string title = isMale ? "Sir" : "Dame";
-            string home = homeLand.Length > 0 
-                ? homeLand[random.Next(homeLand.Length)] 
+            string home = homeLand.Length > 0
+                ? homeLand[random.Next(homeLand.Length)]
                 : "Homeland"; // Fallback if empty
-            
+
             return $"{title} {firstName} {home}";
         }
     }

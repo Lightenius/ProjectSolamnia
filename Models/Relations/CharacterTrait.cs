@@ -1,6 +1,6 @@
 namespace ProjectSolamnia{
 
-// bu sayfa karakterlerle idleri birleştirmeye yarıyor
+// Junction entity to represent the many-to-many relationship between Characters and Traits
     public class CharacterTrait
     {
         public int CharacterId { get; set; }

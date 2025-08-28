@@ -363,7 +363,7 @@ namespace ProjectSolamnia
 
         private static void UpdateCharacter()
         {
-            ConsoleHelpers.ListCharactersBrief();
+            ConsoleHelpers.PrintCharactersBrief(_characterService.GetAllCharactersBrief());
             Console.WriteLine("\n=== Update Character ===");
 
             // Get Character ID to update
@@ -436,7 +436,7 @@ namespace ProjectSolamnia
 
         private static void DeleteCharacter()
         {
-            ConsoleHelpers.ListCharactersBrief();
+            ConsoleHelpers.PrintCharactersBrief(_characterService.GetAllCharactersBrief());
             Console.WriteLine("Enter Character ID to delete:");
             var charIdInput = Console.ReadLine();
             if (!int.TryParse(charIdInput, out var charId))
@@ -632,11 +632,11 @@ namespace ProjectSolamnia
 
         private static void GenerateRandomCharacter()
         {
-            Consoole.WriteLine("Generating a random character...");
+            Console.WriteLine("Generating a random character...");
 
-            var (newChar, selectedTraitId, educationTrait, personalityTraits) = _charGenService.GenerateRandomCharacter();
+            var (newChar, selectedTraitIds, educationTrait, personalityTraits) = _charGenService.Generate();
 
-            if (_characterService.CreateCharacter(newChar, selectedTraitId, out var err))
+            if (_characterService.CreateCharacter(newChar, selectedTraitIds, out var err))
             {
                 Console.WriteLine("\n=== RANDOM CHARACTER ===");
                 Console.WriteLine($"{newChar.Name}, {newChar.Age} years old");

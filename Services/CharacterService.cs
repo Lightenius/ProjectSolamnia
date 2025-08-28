@@ -164,7 +164,7 @@ namespace ProjectSolamnia
                 return false;
             }
         }
-        
+
         // Create new character        
         public bool CreateCharacter(Character character, List<int> traitIds, out string errorMessage)
         {
@@ -230,6 +230,21 @@ namespace ProjectSolamnia
 
             return traits;
         }
+        public List<CharacterBriefDto> GetAllCharactersBrief()
+        {
+            return _dbContext.Characters
+                .AsNoTracking()
+                .Select(c => new CharacterBriefDto
+                {
+                    Id = c.Id,
+                    Name = c.Name,
+                    Level = c.Level,
+                    Status = c.Status
+                })
+                .OrderBy(c => c.Id)
+                .ToList();
+        }
+
 
     }
 

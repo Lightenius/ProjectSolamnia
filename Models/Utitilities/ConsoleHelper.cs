@@ -1,11 +1,11 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace ProjectSolamnia
 {
     public static class ConsoleHelpers
     {
-        private static CharacterService _characterService = null!;
         public static string? ReadOptionalString(string prompt)
         {
             Console.Write(prompt);
@@ -36,7 +36,6 @@ namespace ProjectSolamnia
                 .Where(x => x != -1).ToList() ?? new List<int>();
         }
 
-        // Basit evet/hayır onayı
         public static bool Confirm(string prompt = "Are you sure? [y/N]: ")
         {
             Console.Write(prompt);
@@ -44,9 +43,8 @@ namespace ProjectSolamnia
             return s is "y" or "yes";
         }
 
-        public static void ListCharactersBrief()
+        public static void PrintCharactersBrief(IEnumerable<CharacterBriefDto> list)
         {
-            var list = _characterService.GetAllCharacters(); // yoksa servise ekleyelim
             if (list == null || !list.Any())
             {
                 Console.WriteLine("No characters in DB.");
@@ -57,6 +55,5 @@ namespace ProjectSolamnia
             foreach (var c in list)
                 Console.WriteLine($"ID={c.Id}  Name={c.Name}  Level={c.Level}  Status={c.Status}");
         }
-
     }
 }

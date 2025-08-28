@@ -14,6 +14,9 @@ namespace ProjectSolamnia
         private static TraitService _traitService = null!;
         private static CharacterService _characterService = null!;
         private static HoldingService _holdingService = null!;
+        private static CharacterGenerationService _charGenService = null!;
+
+
 
         public static void Main(string[] args)
         {
@@ -48,6 +51,7 @@ namespace ProjectSolamnia
             services.AddScoped<TraitService>();
             services.AddScoped<CharacterService>();
             services.AddScoped<HoldingService>();
+            services.AddScoped<CharacterGenerationService>();
 
             provider = services.BuildServiceProvider();
 
@@ -58,7 +62,9 @@ namespace ProjectSolamnia
             _traitService = scope.ServiceProvider.GetRequiredService<TraitService>();
             _characterService = scope.ServiceProvider.GetRequiredService<CharacterService>();
             _holdingService = scope.ServiceProvider.GetRequiredService<HoldingService>();
+            _charGenService = scope.ServiceProvider.GetRequiredService<CharacterGenerationService>();
         }
+
 
         private static void RunApplication()
         {
@@ -346,7 +352,7 @@ namespace ProjectSolamnia
             // Trait ID'lerini kullanıcıdan al
             Console.WriteLine("Enter Trait IDs separated by comma (e.g. 1,3,5,36 for 3 Personality + 1 Education):");
             var idsInput = Console.ReadLine();
-            var traitIds = ParseIdList(idsInput);
+            var traitIds = ConsoleHelpers.ParseIdList(idsInput);
 
             // Sadece servis çağrısı ve sonuç gösterimi
             if (_characterService.CreateCharacter(newChar, traitIds, out var err))
@@ -357,7 +363,7 @@ namespace ProjectSolamnia
 
         private static void UpdateCharacter()
         {
-            ListCharactersBrief();
+            ConsoleHelpers.ListCharactersBrief();
             Console.WriteLine("\n=== Update Character ===");
 
             // Get Character ID to update
@@ -391,19 +397,19 @@ namespace ProjectSolamnia
             // Get updated details
             Console.WriteLine("\nEnter new details (leave blank to keep current value):");
 
-            String? name = ReadOptionalString($"Name [{current.Name}]: ");
-            int? age = ReadOptionalInt($"Age [{current.Age}]: ");
-            String? rank = ReadOptionalString($"Rank [{current.Rank}]: ");
+            String? name = ConsoleHelpers.ReadOptionalString($"Name [{current.Name}]: ");
+            int? age = ConsoleHelpers.ReadOptionalInt($"Age [{current.Age}]: ");
+            String? rank = ConsoleHelpers.ReadOptionalString($"Rank [{current.Rank}]: ");
 
             Console.Write($"Status [{current.Status}] \n 0: AD, 1: KIA, 2: MIA, 3: POW, 4: DOW, 5: AWOL, 6: DES ");
-            StatusType? status = ReadOptionalEnum<StatusType>("New Status: ");
+            StatusType? status = ConsoleHelpers.ReadOptionalEnum<StatusType>("New Status: ");
 
-            string? activeDuty = ReadOptionalString($"Active Duty [{current.ActiveDuty}]: ");
-            int? level = ReadOptionalInt($"Level [{current.Level}]: ");
+            string? activeDuty = ConsoleHelpers.ReadOptionalString($"Active Duty [{current.ActiveDuty}]: ");
+            int? level = ConsoleHelpers.ReadOptionalInt($"Level [{current.Level}]: ");
 
             // Get new trait IDs (3 Personality + 1 Education)
             Console.Write("\nEnter 3 Personality + 1 Education Trait IDs (comma separated): ");
-            var traitIds = ParseIdList(Console.ReadLine());
+            var traitIds = ConsoleHelpers.ParseIdList(Console.ReadLine());
 
             // Prepare update DTO
             var dto = new CharacterUpdateDto
@@ -430,12 +436,18 @@ namespace ProjectSolamnia
 
         private static void DeleteCharacter()
         {
-            ListCharactersBrief();
+            ConsoleHelpers.ListCharactersBrief();
             Console.WriteLine("Enter Character ID to delete:");
             var charIdInput = Console.ReadLine();
             if (!int.TryParse(charIdInput, out var charId))
             {
                 Console.WriteLine("Invalid ID.");
+                return;
+            }
+
+            if (!ConsoleHelpers.Confirm("This will permanently delete the character. Are you sure? [y/N]: "))
+            {
+                Console.WriteLine("Cancelled.");
                 return;
             }
 
@@ -620,126 +632,11 @@ namespace ProjectSolamnia
 
         private static void GenerateRandomCharacter()
         {
-            Console.WriteLine("Generating a random character...");
-            var random = new Random();
+            Consoole.WriteLine("Generating a random character...");
 
-            // 1. Generate base attributes (1-12 with precise bell curve distribution)
-            int RollBaseAttribute()
-            {
-                int roll = random.Next(1, 10001);
-                return roll switch
-                {
-                    <= 277 => 2,    // 2.77%
-                    <= 832 => 3,    // 5.55% 
-                    <= 1665 => 4,   // 8.33% 
-                    <= 2776 => 5,   // 11.11% 
-                    <= 4164 => 6,   // 13.88% 
-                    <= 5830 => 7,   // 16.66% 
-                    <= 7218 => 8,   // 13.88% 
-                    <= 8329 => 9,   // 11.11% 
-                    <= 9162 => 10,  // 8.33% 
-                    <= 9717 => 11,  // 5.55% 
-                    _ => 12         // 2.83% 
-                };
-            }
+            var (newChar, selectedTraitId, educationTrait, personalityTraits) = _charGenService.GenerateRandomCharacter();
 
-            // 2. Generate age (16-70) with weighted distribution toward prime years
-            int age = random.Next(100) switch
-            {
-                < 15 => random.Next(16, 26),  // 15% young (16-25)
-                < 70 => random.Next(26, 46),  // 55% prime (26-45)
-                < 90 => random.Next(46, 61),  // 20% middle-aged (46-60)
-                _ => random.Next(61, 71)      // 10% old (61-70)
-            };
-
-            // 3. Create character with base attributes
-            var newChar = new Character
-            {
-                Name = GetRandomName(random) ?? "Unknown",
-                Age = age,
-                Rank = "",
-                Status = StatusType.AD,
-                ActiveDuty = "",
-                Diplomacy = RollBaseAttribute(),
-                Martial = RollBaseAttribute(),
-                Stewardship = RollBaseAttribute(),
-                Intrigue = RollBaseAttribute(),
-                Learning = RollBaseAttribute(),
-                Prowess = RollBaseAttribute(),
-                Level = random.Next(1, 6)
-            };
-
-            // 4. education trait
-
-            var educationType = random.Next(6) switch
-            {
-                0 => "Diplomacy",
-                1 => "Martial",
-                2 => "Stewardship",
-                3 => "Intrigue",
-                4 => "Learning",
-                _ => "Prowess"
-            };
-
-            var educationTrait = _traitService.GetAllTraits()
-                .Where(t => t.Type == TraitType.Education)
-                .Where(t => IsInEducationCategory(t, educationType))
-                .FirstOrDefault(random.Next(100) switch
-                {
-                    < 35 => t => GetTier(t, educationType) == 1,  // Tier 1 (35%)
-                    < 65 => t => GetTier(t, educationType) == 2,  // Tier 2 (30%)
-                    < 85 => t => GetTier(t, educationType) == 3,  // Tier 3 (20%)
-                    < 95 => t => GetTier(t, educationType) == 4,  // Tier 4 (10%)
-                    _ => t => GetTier(t, educationType) == 5      // Tier 5 (5%)
-                });
-
-            static bool IsInEducationCategory(Trait trait, string category)
-            {
-                return category switch
-                {
-                    "Diplomacy" => trait.BonusDiplomacy > 0 && trait.BonusMartial == 0,
-                    "Martial" => trait.BonusMartial > 0 && trait.BonusStewardship == 0,
-                    "Stewardship" => trait.BonusStewardship > 0 && trait.BonusIntrigue == 0,
-                    "Intrigue" => trait.BonusIntrigue > 0 && trait.BonusLearning == 0,
-                    "Learning" => trait.BonusLearning > 0 && trait.BonusProwess == 0,
-                    "Prowess" => trait.BonusProwess > 0,
-                    _ => false
-                };
-            }
-
-            static int GetTier(Trait trait, string category)
-            {
-                return category switch
-                {
-                    "Diplomacy" => trait.BonusDiplomacy / 2,
-                    "Martial" => trait.BonusMartial / 2,
-                    "Stewardship" => trait.BonusStewardship / 2,
-                    "Intrigue" => trait.BonusIntrigue / 2,
-                    "Learning" => trait.BonusLearning / 2,
-                    "Prowess" => trait.BonusProwess, // Prowess uses direct values (1-4)
-                    _ => 1
-                };
-            }
-
-            // 5. Select 3 personality traits
-            var personalityTraits = _traitService.GetAllTraits()
-                .Where(t => t.Type == TraitType.Personality)
-                .OrderBy(_ => random.Next())
-                .Take(3)
-                .ToList();
-
-            // 6. Prepare trait IDs
-            var selectedTraitIds = personalityTraits?
-                .Select(t => t.Id)
-                .ToList() ?? new List<int>();
-
-            if (educationTrait != null)
-            {
-                selectedTraitIds.Add(educationTrait.Id);
-            }
-
-            // 7. Save and display results
-            if (_characterService.UpdateCharacter(newChar, selectedTraitIds, out var err))
+            if (_characterService.CreateCharacter(newChar, selectedTraitId, out var err))
             {
                 Console.WriteLine("\n=== RANDOM CHARACTER ===");
                 Console.WriteLine($"{newChar.Name}, {newChar.Age} years old");
@@ -766,52 +663,9 @@ namespace ProjectSolamnia
                 Console.WriteLine("Error generating character: " + err);
             }
         }
+    
 
         // Helpers to read optional inputs
-        private static void ListCharactersBrief()
-        {
-            var list = _characterService.GetAllCharacters(); // yoksa servise ekleyelim
-            if (list == null || !list.Any())
-            {
-                Console.WriteLine("No characters in DB.");
-                return;
-            }
-
-            Console.WriteLine("\n-- Characters --");
-            foreach (var c in list)
-                Console.WriteLine($"ID={c.Id}  Name={c.Name}  Level={c.Level}  Status={c.Status}");
-        }
-
-        private static String? ReadOptionalString(string prompt)
-        {
-            Console.Write(prompt);
-            var s = Console.ReadLine();
-            return string.IsNullOrWhiteSpace(s) ? null : s;
-        }
-
-        private static int? ReadOptionalInt(string prompt)
-        {
-            Console.Write(prompt);
-            var s = Console.ReadLine();
-            if (string.IsNullOrWhiteSpace(s)) return null;
-            return int.TryParse(s, out var val) ? val : (int?)null;
-        }
-
-        private static TEnum? ReadOptionalEnum<TEnum>(string prompt) where TEnum : struct
-        {
-            Console.Write(prompt);
-            var s = Console.ReadLine();
-            if (string.IsNullOrWhiteSpace(s)) return null;
-            return Enum.TryParse<TEnum>(s, out var val) ? val : (TEnum?)null;
-        }
-
-                // Trait ID'lerini string'den listeye çeviren yardımcı fonksiyon
-        private static List<int> ParseIdList(string? input)
-        {
-            return input?.Split(',', StringSplitOptions.RemoveEmptyEntries)
-                .Select(x => int.TryParse(x.Trim(), out var id) ? id : -1)
-                .Where(x => x != -1).ToList() ?? new List<int>();
-        }
 
         private static void ShowLoadingAnimation()
         {
@@ -832,81 +686,6 @@ namespace ProjectSolamnia
             }
         }
 
-        private static string GetRandomName(Random random)
-        {
-            string[] maleNames =
-            {
-                "Aaron", "Abbo", "Abel", "Abraham", "Absalom", "Achard", "Achilles", "Acledulf", "Aclefrid", "Aclehard",
-                "Acleman", "Aclemund", "Actard", "Actwin", "Adalald", "Adalbald", "Adalbod", "Adalfrid", "Adalgrim",
-                "Adalhar", "Adalhelm", "Adalmar", "Adalmund", "Adalrad", "Adalwald", "Adam", "Adelard", "Ademar",
-                "Adolf", "Adrian", "Adrulf","Ağda", "Aicard", "Ailbert", "Ailhard", "Ainard", "Alain", "Alaric", "Alban",
-                "Alberic", "Albert", "Albo", "Aldebrand", "Aldemar", "Aldrich", "Aldwin", "Alexander", "Alfgar",
-                "Alfhelm", "Alfred", "Alfwin", "Alphonse", "Alric", "Alvaro", "Alwin", "Amadeus", "Ambrose", "Amis",
-                "Ancel", "Andrew", "Anselm", "Ansgar", "Anzo", "Apollonius", "Archibald", "Aristotle", "Arnold",
-                "Arnulf", "Artald", "Arthur", "Athelstan", "Aubrey", "Audoen", "August", "Aurelian", "Aurelius",
-                "Austin", "Averroes", "Avo", "Aylmer", "Baldwin", "Balthasar", "Barnabas", "Bartholomew", "Basil",
-                "Bastian", "Benedict", "Benjamin", "Bernard", "Berengar", "Bertram", "Bjorn", "Blaise", "Bodo",
-                "Boguslav", "Boleslav", "Boniface", "Boso", "Brand", "Brian", "Brice", "Bruno", "Cadell", "Cadwallon",
-                "Caesar", "Caius", "Casimir", "Cassian", "Charles", "Christian", "Christopher", "Claudian", "Conrad",
-                "Constantine", "Corbinian", "Crispin", "Cuthbert", "Cyprian", "Cyril", "Dagobert", "Damian", "Daniel",
-                "David", "Denis", "Dietrich", "Dominic", "Donald", "Drogo", "Dunstan", "Edgar", "Edmund", "Edward",
-                "Edwin", "Elias", "Eliezer", "Emery", "Engelbert", "Ephraim", "Erik", "Ernest", "Eugene", "Eustace",
-                "Everard", "Favian", "Felix", "Ferdinand", "Fulk", "Gabriel", "Cumcision", "Gawain", "Geoffrey", "George", "Gerard",
-                "Gervase", "Gilbert", "Giles", "Godfrey", "Godric", "Godwin", "Gregory", "Grimbald", "Gualter", "Gunnar",
-                "Guy", "Harold", "Hector", "Henry", "Herbert", "Hildebrand", "Hincmar", "Hugh", "Humbert", "Humphrey",
-                "Ivo", "Jasper", "Jerome", "John", "Jolan", "Joseph", "Joshua", "Julian", "Julius", "Justus", "Kenelm",
-                "Lambert", "Laurence", "Leif", "Leonard", "Leopold", "Lothar", "Louis", "Lucian", "Ludovic", "Magnus",
-                "Malcolm", "Marcus", "Martin", "Matthew", "Maurice", "Michael", "Nicholas", "Odo", "Oliver", "Orson",
-                "Oswald", "Otho", "Otto", "Pascal", "Patrick", "Paul", "Percival", "Peter", "Philip", "Raimond", "Ralph",
-                "Raymond", "Reginald", "Reinbald", "Richard", "Robert", "Roderick", "Roger", "Roland", "Rolf", "Rupert",
-                "Samson", "Sebastian", "Siegfried", "Sigismund", "Simon", "Stephen", "Tancred", "Theobald", "Theodore",
-                "Theodoric", "Thomas", "Thurstan", "Tiberius", "Timothy", "Tobias", "Torsten", "Tristan", "Ulrich",
-                "Ulysses", "Valentin", "Victor", "Vincent", "Virgil", "Vitalis", "Vivian", "Waleran", "Walter", "Warin",
-                "Wenceslas", "Wilfred", "William", "Wulfric", "Xavier", "Yves", "Zachary"
-            };
-
-            string[] femaleNames =
-            {
-                "Adelaide", "Adelina", "Agatha", "Agnes", "Alba", "Aldith", "Alexandra", "Alice", "Amabel", "Amalia",
-                "Amice", "Anastasia", "Andrea", "Angela", "Anna", "Anne", "Avelina", "Beatrice", "Berenice", "Brigid",
-                "Cecilia", "Clarimond", "Constance", "Drusilla", "Eleanor", "Elizabeth", "Emmeline", "Eugenia",
-                "Euphemia", "Felicia", "Florence", "Genevieve", "Gisela", "Gratiana", "Helena", "Hildegard", "Idony",
-                "Isabel", "Joan", "Juliana", "Katherine", "Leah", "Lucia", "Margaret", "Maria", "Matilda", "Mirabel",
-                "Olivia", "Philippa", "Rosamund", "Sabina", "Sophia", "Theodora", "Ursula", "Valentina", "Winifred", "Ysabel"
-            };
-
-            string[] homeLand =
-            {
-                "uth Duskhollow", "uth Ironreach", "uth Wolfshearth", "uth Bleakmarsh", "uth Rivenrock", "uth Thornwold",
-                "uth Shadowcrest", "uth Stonemark", "uth Kjeldur", "uth Ulfdale", "uth Hargoth’s Stand", "uth Vexmire",
-                "uth Grimspire", "uth Duskrend", "uth Frostbite", "uth Raven’s Maw", "uth Briarstoke", "uth Witchmelt",
-                "uth Ashthroat", "uth Deadspan", "uth Hearthscar", "uth Blightstoke", "uth Moorgrave", "uth Blackmire",
-                "uth Stoneharrow", "uth Wyrmfen", "uth Frostsink", "uth Grimbreach", "uth Vaelmoor", "uth Stormcrag",
-                "uth Caergoth", "uth Edgerton", "uth Harrying", "uth Hamilton", "uth Lockhart", "uth Starport",
-                "uth Stimpton", "uth Restglen", "uth Rening", "uth O'Call", "uth Di Estra", "uth Firstward", "uth Gorbie",
-                "uth Wtdel", "uth Ironrock", "uth Portsmith", "uth Deepdel", "uth Gwyntarr", "uth Lytburg", "uth Thelgaard",
-                "uth Brasdel", "uth Luinstat", "uth Sage", "uth Kyre", "uth Vex", "uth Ravenscar", "uth Cairngorn",
-                "uth di Caela", "uth Solanthus", "uth Arnal", "uth Patina", "uth Tresvka", "uth Hartford", "uth Jansburg",
-                "uth Auchunan", "uth Egaard", "uth Valoria", "uth Forestedge", "uth Delgaard", "uth Relgoth", "uth Ryn",
-                "uth Arngrim", "uth Brightblade", "uth Southford", "uth Naergoth", "uth Tearford", "uth Starmont",
-                "uth Gaarlus", "uth Navarre", "uth Viranesh", "uth Ligett", "uth Vogler", "uth Kalaman", "uth Witdell",
-                "uth Manydell", "uth Gander", "uth Hargoth", "uth Winterholm", "uth Potter's Mill", "uth Korval",
-                "uth Godnest", "uth Palanthas", "uth Dawnfort", "uth Highrule", "uth Varus", "di Calea", "de Montrefeltrp",
-                "Boyle", "Ashworth", "Winslow", "Pathwarden", "Donner"
-             };
-
-            bool isMale = random.Next(2) == 0;
-            string firstName = isMale
-                ? maleNames[random.Next(maleNames.Length)]
-                : femaleNames[random.Next(femaleNames.Length)];
-
-            string title = isMale ? "Sir" : "Dame";
-            string home = homeLand.Length > 0
-                ? homeLand[random.Next(homeLand.Length)]
-                : "Homeland"; // Fallback if empty
-
-            return $"{title} {firstName} {home}";
-        }
     }
 }
 

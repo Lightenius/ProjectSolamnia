@@ -1,8 +1,8 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using Microsoft.AspNetCore.Routing;
 using Microsoft.EntityFrameworkCore;
-using ProjectSolamnia;
+
 
 namespace ProjectSolamnia
 {
@@ -178,24 +178,27 @@ namespace ProjectSolamnia
         {
             errorMessage = "";
 
-            var character = _dbContext.Characters
-                .Include(c => c.CharacterTraits)  // karakterin traitlerini de dahil eder
-                .FirstOrDefault(c => c.Id == characterId);
-
-            if (character == null)
+            var exists = _dbContext.Characters.AsNoTracking().Any(c => c.Id == characterId);
+            if (!exists)
             {
                 errorMessage = "Character not found.";
                 return false;
             }
 
-            // bağlı traitleri temizler
-            _dbContext.CharacterTraits.RemoveRange(character.CharacterTraits);
-
-            // karakteri siler
-            _dbContext.Characters.Remove(character);
-
-            _dbContext.SaveChanges();
-            return true;
+            try
+            {
+                // Use a stub entity to avoid fetching full data
+                var stub = new Character { Id = characterId };
+                _dbContext.Attach(stub);
+                _dbContext.Characters.Remove(stub);
+                _dbContext.SaveChanges();
+                return true;
+            }
+            catch (Exception ex)
+            {
+                errorMessage = $"An error occurred: {ex.Message}";
+                return false;
+            }
         }
 
         // Load and validate traits based on IDs
@@ -212,11 +215,18 @@ namespace ProjectSolamnia
             var personalityCount = traits.Count(t => t.Type == TraitType.Personality);
             var educationCount = traits.Count(t => t.Type == TraitType.Education);
 
-            if (personalityCount == 3 && educationCount == 1)
+            if (personalityCount != 3 || educationCount != 1)
             {
                 errorMessage = $"Invalid selection. Need exactly 3 Personality + 1 Education traits (you entered {personalityCount}+{educationCount}).";
                 return traits;
             }
+
+            if (!_traitService.ValidateTraits(traits, out var exclusivityError))
+            {
+                errorMessage = exclusivityError;
+                return null;
+            }
+
 
             return traits;
         }
@@ -230,6 +240,7 @@ namespace ProjectSolamnia
     {
         private static int GetWisdomBonus(Character character)
         {
+            var baseAge = Math.Max(15, character.Age); // Ensure age is at least 15 to avoid log(0) or negative
             return (int)Math.Floor(2 * Math.Log(character.Age - 14));
         }
 

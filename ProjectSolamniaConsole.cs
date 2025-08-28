@@ -121,6 +121,7 @@ namespace ProjectSolamnia
                 Console.ReadKey();
             }
         }
+
         private static void ListCharacters()
         {
             var characters = _characterService.GetAllCharacters();
@@ -172,7 +173,6 @@ namespace ProjectSolamnia
                 Console.WriteLine(new string('-', 40));
             }
         }
-
 
         private static void ManageCharacters()
         {
@@ -279,136 +279,6 @@ namespace ProjectSolamnia
             }
         }
 
-        private static void CreateCharacter()
-        {
-            Console.WriteLine("Creating a new character...");
-            var newChar = new Character { Id = 0 };
-
-            GetCharacterDetails(newChar);
-
-            // Get trait IDs separately since we need them for validation
-            Console.WriteLine("Enter Trait IDs separated by comma (e.g. 1,3,5,36 for 3 Personality + 1 Education):");
-            var idsInput = Console.ReadLine();
-            var traitIds = idsInput?.Split(',', StringSplitOptions.RemoveEmptyEntries)
-                .Select(x => int.TryParse(x.Trim(), out var id) ? id : -1)
-                .Where(x => x != -1).ToList() ?? new List<int>();
-
-            if (_characterService.UpdateCharacter(newChar, traitIds, out var err))
-                Console.WriteLine("Character created successfully.");
-            else
-                Console.WriteLine("Error: " + err);
-        }
-
-
-        private static void UpdateCharacter()
-        {
-            Console.WriteLine("\n=== Update Character ===");
-
-            // Get character ID with validation
-            int charId;
-            while (true)
-            {
-                Console.Write("\nEnter Character ID to update (0 to cancel): ");
-                if (!int.TryParse(Console.ReadLine(), out charId))
-                {
-                    Console.WriteLine("Invalid input. Please enter a number.");
-                    continue;
-                }
-
-                if (charId == 0) return; // Exit if user cancels
-
-                var existingCharacter = _characterService.GetCharacterById(charId);
-                if (existingCharacter != null) break;
-
-                Console.WriteLine($"No character found with ID {charId}. Please try again.");
-            }
-
-            var character = _characterService.GetCharacterById(charId);
-
-            // Show current details
-            Console.WriteLine($"\nUpdating character: {character.Name}");
-            Console.WriteLine($"Current traits: {string.Join(", ", character.CharacterTraits.Select(ct => ct.Trait.Name))}");
-
-            // Get updated details
-            Console.WriteLine("\nEnter new details (leave blank to keep current value):");
-
-            Console.Write($"Name [{character.Name}]: ");
-            var nameInput = Console.ReadLine();
-            if (!string.IsNullOrWhiteSpace(nameInput))
-                character.Name = nameInput;
-
-            Console.Write($"Age [{character.Age}]: ");
-            if (int.TryParse(Console.ReadLine(), out var newAge))
-                character.Age = newAge;
-
-            Console.Write($"Rank [{character.Rank}]: ");
-            var rankInput = Console.ReadLine();
-            if (!string.IsNullOrWhiteSpace(rankInput))
-                character.Rank = rankInput;
-
-            Console.WriteLine($"Status (Current: {character.Status})");
-            Console.WriteLine("0: AD, 1: KIA, 2: MIA, 3: POW, 4: DOW, 5: AWOL, 6: DES");
-            Console.Write("New status: ");
-            if (Enum.TryParse<StatusType>(Console.ReadLine(), out var newStatus))
-                character.Status = newStatus;
-
-            Console.Write($"Active Duty [{character.ActiveDuty}]: ");
-            var activeDutyInput = Console.ReadLine();
-            if (!string.IsNullOrWhiteSpace(activeDutyInput))
-                character.ActiveDuty = activeDutyInput;
-
-            Console.Write($"Level [{character.Level}]: ");
-            if (int.TryParse(Console.ReadLine(), out var newLevel))
-                character.Level = newLevel;
-
-            // Get new traits
-            List<int> traitIds;
-            while (true)
-            {
-                Console.Write("\nEnter 3 Personality + 1 Education Trait IDs (comma separated): ");
-                var idsInput = Console.ReadLine();
-                traitIds = idsInput?.Split(',', StringSplitOptions.RemoveEmptyEntries)
-                    .Select(x => int.TryParse(x.Trim(), out var id) ? id : -1)
-                    .Where(x => x != -1).ToList() ?? new List<int>();
-
-                // Validate trait selection
-                var traits = _traitService.GetAllTraits().Where(t => traitIds.Contains(t.Id)).ToList();
-                var personalityCount = traits.Count(t => t.Type == TraitType.Personality);
-                var educationCount = traits.Count(t => t.Type == TraitType.Education);
-
-                if (personalityCount == 3 && educationCount == 1) break;
-
-                Console.WriteLine($"Invalid selection. Need exactly 3 Personality + 1 Education traits (you entered {personalityCount}+{educationCount}).");
-            }
-
-            // Update character
-            if (_characterService.UpdateCharacter(character, traitIds, out var err))
-            {
-                Console.WriteLine("\nCharacter updated successfully!");
-                Console.WriteLine($"New traits: {string.Join(", ", character.CharacterTraits.Select(ct => ct.Trait.Name))}");
-            }
-            else
-            {
-                Console.WriteLine($"\nError updating character: {err}");
-            }
-        }
-
-        private static void DeleteCharacter()
-        {
-            Console.WriteLine("Enter Character ID to delete:");
-            var charIdInput = Console.ReadLine();
-            if (!int.TryParse(charIdInput, out var charId))
-            {
-                Console.WriteLine("Invalid ID.");
-                return;
-            }
-
-            if (_characterService.DeleteCharacter(charId, out var err))
-                Console.WriteLine("Character deleted successfully.");
-            else
-                Console.WriteLine("Error: " + err);
-        }
-
         private static void GetCharacterDetails(Character character)
         {
             Console.WriteLine("Enter character name:");
@@ -465,6 +335,114 @@ namespace ProjectSolamnia
             character.Intrigue = attributes[3];
             character.Learning = attributes[4];
             character.Prowess = attributes[5];
+        }
+
+        private static void CreateCharacter()
+        {
+            Console.WriteLine("Creating a new character...");
+            var newChar = new Character();
+            GetCharacterDetails(newChar);
+
+            // Trait ID'lerini kullanıcıdan al
+            Console.WriteLine("Enter Trait IDs separated by comma (e.g. 1,3,5,36 for 3 Personality + 1 Education):");
+            var idsInput = Console.ReadLine();
+            var traitIds = ParseIdList(idsInput);
+
+            // Sadece servis çağrısı ve sonuç gösterimi
+            if (_characterService.CreateCharacter(newChar, traitIds, out var err))
+                Console.WriteLine("Character created successfully.");
+            else
+                Console.WriteLine("Error: " + err);
+        }
+
+        private static void UpdateCharacter()
+        {
+            ListCharactersBrief();
+            Console.WriteLine("\n=== Update Character ===");
+
+            // Get Character ID to update
+            int charId;
+            while (true)
+            {
+                Console.Write("\nEnter Character ID to update (0 to cancel): ");
+                if (!int.TryParse(Console.ReadLine(), out charId))
+                {
+                    Console.WriteLine("Invalid input. Please enter a number.");
+                    continue;
+                }
+
+                if (charId == 0) return; // Exit if user cancels
+
+                var exists = _characterService.GetCharacterById(charId);
+                if (exists != null) break;
+
+                else
+                {
+                    Console.WriteLine($"No character found with ID {charId}. Please try again.");
+                }
+            }
+
+            var current = _characterService.GetCharacterById(charId);
+
+            // Show current details
+            Console.WriteLine($"\nUpdating character: {current.Name}");
+            Console.WriteLine($"Current traits: {string.Join(", ", current.CharacterTraits.Select(ct => ct.Trait.Name))}");
+
+            // Get updated details
+            Console.WriteLine("\nEnter new details (leave blank to keep current value):");
+
+            String? name = ReadOptionalString($"Name [{current.Name}]: ");
+            int? age = ReadOptionalInt($"Age [{current.Age}]: ");
+            String? rank = ReadOptionalString($"Rank [{current.Rank}]: ");
+
+            Console.Write($"Status [{current.Status}] \n 0: AD, 1: KIA, 2: MIA, 3: POW, 4: DOW, 5: AWOL, 6: DES ");
+            StatusType? status = ReadOptionalEnum<StatusType>("New Status: ");
+
+            string? activeDuty = ReadOptionalString($"Active Duty [{current.ActiveDuty}]: ");
+            int? level = ReadOptionalInt($"Level [{current.Level}]: ");
+
+            // Get new trait IDs (3 Personality + 1 Education)
+            Console.Write("\nEnter 3 Personality + 1 Education Trait IDs (comma separated): ");
+            var traitIds = ParseIdList(Console.ReadLine());
+
+            // Prepare update DTO
+            var dto = new CharacterUpdateDto
+            {
+                Name = name,
+                Age = age,
+                Rank = rank,
+                Status = status,
+                ActiveDuty = activeDuty,
+                Level = level
+            };
+            // Call service to update
+            if (_characterService.UpdateCharacter(charId, dto, traitIds, out var err))
+            {
+                var updated = _characterService.GetCharacterById(charId)!;
+                Console.WriteLine("\nCharacter updated successfully!");
+                Console.WriteLine($"New traits: {string.Join(", ", updated.CharacterTraits.Select(ct => ct.Trait.Name))}");
+            }
+            else
+            {
+                Console.WriteLine("Error updating character: " + err);
+            }
+        }
+
+        private static void DeleteCharacter()
+        {
+            ListCharactersBrief();
+            Console.WriteLine("Enter Character ID to delete:");
+            var charIdInput = Console.ReadLine();
+            if (!int.TryParse(charIdInput, out var charId))
+            {
+                Console.WriteLine("Invalid ID.");
+                return;
+            }
+
+            if (_characterService.DeleteCharacter(charId, out var err))
+                Console.WriteLine("Character deleted successfully.");
+            else
+                Console.WriteLine("Error: " + err);
         }
 
         private static void CreateTrait()
@@ -640,26 +618,6 @@ namespace ProjectSolamnia
                 holding.TroopsCount = troops;
         }
 
-
-
-        static void ShowLoadingAnimation()
-        {
-            Console.Write("Initializing please wait ");
-            var dots = new[] { ".", "..", "..." };
-            var start = DateTime.Now;
-            int i = 0;
-
-            while ((DateTime.Now - start).TotalSeconds < 5)
-            {
-                var currentDots = dots[i % dots.Length];
-                Console.Write(currentDots);
-                Thread.Sleep(800);
-                Console.SetCursorPosition(Console.CursorLeft - currentDots.Length, Console.CursorTop);
-                Console.Write(new string(' ', currentDots.Length));
-                Console.SetCursorPosition(Console.CursorLeft - currentDots.Length, Console.CursorTop);
-                i++;
-            }
-        }
         private static void GenerateRandomCharacter()
         {
             Console.WriteLine("Generating a random character...");
@@ -806,6 +764,71 @@ namespace ProjectSolamnia
             else
             {
                 Console.WriteLine("Error generating character: " + err);
+            }
+        }
+
+        // Helpers to read optional inputs
+        private static void ListCharactersBrief()
+        {
+            var list = _characterService.GetAllCharacters(); // yoksa servise ekleyelim
+            if (list == null || !list.Any())
+            {
+                Console.WriteLine("No characters in DB.");
+                return;
+            }
+
+            Console.WriteLine("\n-- Characters --");
+            foreach (var c in list)
+                Console.WriteLine($"ID={c.Id}  Name={c.Name}  Level={c.Level}  Status={c.Status}");
+        }
+
+        private static String? ReadOptionalString(string prompt)
+        {
+            Console.Write(prompt);
+            var s = Console.ReadLine();
+            return string.IsNullOrWhiteSpace(s) ? null : s;
+        }
+
+        private static int? ReadOptionalInt(string prompt)
+        {
+            Console.Write(prompt);
+            var s = Console.ReadLine();
+            if (string.IsNullOrWhiteSpace(s)) return null;
+            return int.TryParse(s, out var val) ? val : (int?)null;
+        }
+
+        private static TEnum? ReadOptionalEnum<TEnum>(string prompt) where TEnum : struct
+        {
+            Console.Write(prompt);
+            var s = Console.ReadLine();
+            if (string.IsNullOrWhiteSpace(s)) return null;
+            return Enum.TryParse<TEnum>(s, out var val) ? val : (TEnum?)null;
+        }
+
+                // Trait ID'lerini string'den listeye çeviren yardımcı fonksiyon
+        private static List<int> ParseIdList(string? input)
+        {
+            return input?.Split(',', StringSplitOptions.RemoveEmptyEntries)
+                .Select(x => int.TryParse(x.Trim(), out var id) ? id : -1)
+                .Where(x => x != -1).ToList() ?? new List<int>();
+        }
+
+        private static void ShowLoadingAnimation()
+        {
+            Console.Write("Initializing please wait ");
+            var dots = new[] { ".", "..", "..." };
+            var start = DateTime.Now;
+            int i = 0;
+
+            while ((DateTime.Now - start).TotalSeconds < 5)
+            {
+                var currentDots = dots[i % dots.Length];
+                Console.Write(currentDots);
+                Thread.Sleep(800);
+                Console.SetCursorPosition(Console.CursorLeft - currentDots.Length, Console.CursorTop);
+                Console.Write(new string(' ', currentDots.Length));
+                Console.SetCursorPosition(Console.CursorLeft - currentDots.Length, Console.CursorTop);
+                i++;
             }
         }
 

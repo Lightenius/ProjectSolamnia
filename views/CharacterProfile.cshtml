@@ -155,7 +155,7 @@
                 <div>
                     <div class="section">
                         <h3 class="section-title">Status</h3>
-                        <p>Active Duty: @Model.ActiveDuty</p>
+                        <p>Active Duty: @Model.Mission</p>
                         
                         @if (Model.AssignedHolding != null)
                         {
@@ -189,27 +189,27 @@
                         <h3 class="section-title">Attributes</h3>
                         <div class="stats-grid">
                             <div class="stat-item">
-                                <div class="stat-value">@Model.Diplomacy</div>
+                                <div class="stat-value">@Model.BaseDiplomacy</div>
                                 <div class="stat-label">Diplomacy</div>
                             </div>
                             <div class="stat-item">
-                                <div class="stat-value">@Model.Martial</div>
+                                <div class="stat-value">@Model.BaseMartial</div>
                                 <div class="stat-label">Martial</div>
                             </div>
                             <div class="stat-item">
-                                <div class="stat-value">@Model.Stewardship</div>
+                                <div class="stat-value">@Model.BaseStewardship</div>
                                 <div class="stat-label">Stewardship</div>
                             </div>
                             <div class="stat-item">
-                                <div class="stat-value">@Model.Intrigue</div>
+                                <div class="stat-value">@Model.BaseIntrigue</div>
                                 <div class="stat-label">Intrigue</div>
                             </div>
                             <div class="stat-item">
-                                <div class="stat-value">@Model.Learning</div>
+                                <div class="stat-value">@Model.BaseLearning</div>
                                 <div class="stat-label">Learning</div>
                             </div>
                             <div class="stat-item">
-                                <div class="stat-value">@Model.Prowess</div>
+                                <div class="stat-value">@Model.BaseProwess</div>
                                 <div class="stat-label">Prowess</div>
                             </div>
                         </div>

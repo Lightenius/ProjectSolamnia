@@ -149,5 +149,30 @@ namespace ProjectSolamnia
                 .GroupBy(t => t.Type)
                 .ToDictionary(g => g.Key, g => g.ToList());
         }
+        public static string FormatTraitBrief(Trait t)
+        {
+            string typeLabel = t.Type switch
+            {
+                TraitType.Personality => "Personality Trait",
+                TraitType.Education => "Education Trait",
+                _ => "Trait"
+            };
+
+            var parts = new List<string>();
+            void Add(string name, int val)
+            {
+                if (val != 0) parts.Add($"{name} {(val > 0 ? "+" : "")}{val}");
+            }
+
+            Add("Diplomacy",  t.BonusDiplomacy);
+            Add("Martial",    t.BonusMartial);
+            Add("Stewardship",t.BonusStewardship);
+            Add("Intrigue",   t.BonusIntrigue);
+            Add("Learning",   t.BonusLearning);
+            Add("Prowess",    t.BonusProwess);
+
+            var bonuses = parts.Count > 0 ? string.Join(", ", parts) : "no attribute bonuses";
+            return $"{t.Name}: {typeLabel}; {bonuses}";
+        }
     }
 }

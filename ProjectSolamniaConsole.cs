@@ -15,6 +15,8 @@ namespace ProjectSolamnia
         private static CharacterService _characterService = null!;
         private static HoldingService _holdingService = null!;
         private static CharacterGenerationService _charGenService = null!;
+        private static WisdomService _wisdomService = null!;
+
 
 
 
@@ -52,6 +54,7 @@ namespace ProjectSolamnia
             services.AddScoped<CharacterService>();
             services.AddScoped<HoldingService>();
             services.AddScoped<CharacterGenerationService>();
+            services.AddScoped<WisdomService>();
 
             provider = services.BuildServiceProvider();
 
@@ -63,6 +66,7 @@ namespace ProjectSolamnia
             _characterService = scope.ServiceProvider.GetRequiredService<CharacterService>();
             _holdingService = scope.ServiceProvider.GetRequiredService<HoldingService>();
             _charGenService = scope.ServiceProvider.GetRequiredService<CharacterGenerationService>();
+            _wisdomService = scope.ServiceProvider.GetRequiredService<WisdomService>();
         }
 
 
@@ -130,22 +134,91 @@ namespace ProjectSolamnia
 
         private static void ListCharacters()
         {
+            
             var characters = _characterService.GetAllCharacters();
             foreach (var c in characters)
             {
                 Console.WriteLine($"#{c.Id} {c.Name}, Rank: {c.Rank}, Age: {c.Age}");
-                Console.WriteLine($" Status: {c.Status}, Holding: {c.AssignedHolding?.Name ?? "None"}, Active Duty: {c.ActiveDuty}");
+                Console.WriteLine($" Status: {c.Status}, Holding: {c.AssignedHolding?.Name ?? "None"}, Mission: {c.Mission}");
                 Console.WriteLine($" Traits: {string.Join(", ", c.CharacterTraits.Select(t => t.Trait.Name))}");
+                _wisdomService.TopUpWisdom(c);
                 Console.WriteLine(
-                        $"Attributes: \nDIP={EffectiveAttributeCalculator.EffectiveDiplomacy(c)} " +
-                        $"\nMAR={EffectiveAttributeCalculator.EffectiveMartial(c)} " +
-                        $"\nSTE={EffectiveAttributeCalculator.EffectiveStewardship(c)} " +
-                        $"\nINT={EffectiveAttributeCalculator.EffectiveIntrigue(c)} " +
-                        $"\nLEA={EffectiveAttributeCalculator.EffectiveLearning(c)} " +
-                        $"\nPRO={EffectiveAttributeCalculator.EffectiveProwess(c)}");
+                    $"Attributes: \nDIP={EffectiveAttributeCalculator.EffectiveDiplomacy(c)} " +
+                    $"\nMAR={EffectiveAttributeCalculator.EffectiveMartial(c)} " +
+                    $"\nSTE={EffectiveAttributeCalculator.EffectiveStewardship(c)} " +
+                    $"\nINT={EffectiveAttributeCalculator.EffectiveIntrigue(c)} " +
+                    $"\nLEA={EffectiveAttributeCalculator.EffectiveLearning(c)} " +
+                    $"\nPRO={EffectiveAttributeCalculator.EffectiveProwess(c)}");
                 Console.WriteLine(new string('-', 40));
             }
 
+            
+            while (true)
+            {
+                Console.Write("Enter an ID to view full sheet (or press Enter / '0' to exit): ");
+                var input = Console.ReadLine()?.Trim();
+                if (string.IsNullOrEmpty(input) || string.Equals(input, "0", StringComparison.OrdinalIgnoreCase))
+                    break;
+
+                if (!int.TryParse(input, out var charId))
+                {
+                    Console.WriteLine("Invalid ID.");
+                    continue;
+                }
+
+                var c = _characterService.GetCharacterById(charId);
+                if (c == null)
+                {
+                    Console.WriteLine("Character not found.");
+                    continue;
+                }
+
+                // Ensure wisdom is up to date before computing effective stats
+                _wisdomService.TopUpWisdom(c);
+
+                // 3) Full character sheet
+                Console.WriteLine(new string('=', 60));
+                Console.WriteLine($"Character Sheet for #{c.Id}: {c.Name}");
+                Console.WriteLine(new string('=', 60));
+
+                Console.WriteLine($" Rank:   {c.Rank}");
+                Console.WriteLine($" Age:    {c.Age}");
+                Console.WriteLine($" Status: {c.Status}");
+                Console.WriteLine($" Level:  {c.Level}");
+                Console.WriteLine($" Holding: {c.AssignedHolding?.Name ?? "None"}");
+                Console.WriteLine($" Mission: {c.Mission}");
+
+                Console.WriteLine();
+                Console.WriteLine("Base Attributes:");
+                Console.WriteLine($" DIP = {c.BaseDiplomacy}");
+                Console.WriteLine($" MAR = {c.BaseMartial}");
+                Console.WriteLine($" STE = {c.BaseStewardship}");
+                Console.WriteLine($" INT = {c.BaseIntrigue}");
+                Console.WriteLine($" LEA = {c.BaseLearning}");
+                Console.WriteLine($" PRO = {c.BaseProwess}");
+
+                Console.WriteLine();
+                Console.WriteLine("Effective Attributes:");
+                Console.WriteLine($" DIP = {EffectiveAttributeCalculator.EffectiveDiplomacy(c)}");
+                Console.WriteLine($" MAR = {EffectiveAttributeCalculator.EffectiveMartial(c)}");
+                Console.WriteLine($" STE = {EffectiveAttributeCalculator.EffectiveStewardship(c)}");
+                Console.WriteLine($" INT = {EffectiveAttributeCalculator.EffectiveIntrigue(c)}");
+                Console.WriteLine($" LEA = {EffectiveAttributeCalculator.EffectiveLearning(c)}");
+                Console.WriteLine($" PRO = {EffectiveAttributeCalculator.EffectiveProwess(c)}");
+
+                Console.WriteLine();
+                Console.WriteLine("Wisdom allocation (cumulative):");
+                Console.WriteLine($" DIP +{c.WisDip}, MAR +{c.WisMar}, STE +{c.WisSte}, INT +{c.WisInt}, LEA +{c.WisLea}, PRO +{c.WisPro}");
+                Console.WriteLine($" Wisdom points applied: {c.WisdomPointsApplied}");
+
+                Console.WriteLine();
+                Console.WriteLine("-------- TRAITS --------");
+                foreach (var ct in c.CharacterTraits.Select(x => x.Trait))
+                    Console.WriteLine(TraitService.FormatTraitBrief(ct));
+
+                Console.WriteLine(new string('=', 60));
+                Console.WriteLine(); // blank line before the next prompt
+            }
         }
 
         private static void ListTraits()
@@ -305,8 +378,8 @@ namespace ProjectSolamnia
             if (int.TryParse(Console.ReadLine(), out var holdingId))
                 character.AssignedHoldingId = holdingId;
 
-            Console.WriteLine("Active Duty:");
-            character.ActiveDuty = Console.ReadLine() ?? "";
+            Console.WriteLine("Mission:");
+            character.Mission = Console.ReadLine() ?? "";
 
             Console.WriteLine("Level (default is 1):");
             if (int.TryParse(Console.ReadLine(), out var level))
@@ -335,12 +408,12 @@ namespace ProjectSolamnia
                     attributes[i] = 5;
             }
 
-            character.Diplomacy = attributes[0];
-            character.Martial = attributes[1];
-            character.Stewardship = attributes[2];
-            character.Intrigue = attributes[3];
-            character.Learning = attributes[4];
-            character.Prowess = attributes[5];
+            character.BaseDiplomacy = attributes[0];
+            character.BaseMartial = attributes[1];
+            character.BaseStewardship = attributes[2];
+            character.BaseIntrigue = attributes[3];
+            character.BaseLearning = attributes[4];
+            character.BaseProwess = attributes[5];
         }
 
         private static void CreateCharacter()
@@ -404,7 +477,7 @@ namespace ProjectSolamnia
             Console.Write($"Status [{current.Status}] \n 0: AD, 1: KIA, 2: MIA, 3: POW, 4: DOW, 5: AWOL, 6: DES ");
             StatusType? status = ConsoleHelpers.ReadOptionalEnum<StatusType>("New Status: ");
 
-            string? activeDuty = ConsoleHelpers.ReadOptionalString($"Active Duty [{current.ActiveDuty}]: ");
+            string? mission = ConsoleHelpers.ReadOptionalString($"Mission [{current.Mission}]: ");
             int? level = ConsoleHelpers.ReadOptionalInt($"Level [{current.Level}]: ");
 
             // Get new trait IDs (3 Personality + 1 Education)
@@ -418,7 +491,7 @@ namespace ProjectSolamnia
                 Age = age,
                 Rank = rank,
                 Status = status,
-                ActiveDuty = activeDuty,
+                Mission = mission,
                 Level = level
             };
             // Call service to update
@@ -437,24 +510,55 @@ namespace ProjectSolamnia
         private static void DeleteCharacter()
         {
             ConsoleHelpers.PrintCharactersBrief(_characterService.GetAllCharactersBrief());
-            Console.WriteLine("Enter Character ID to delete:");
-            var charIdInput = Console.ReadLine();
-            if (!int.TryParse(charIdInput, out var charId))
+            Console.WriteLine("Enter Character ID(s) to delete (e.g., 1,2,3):");
+            var input = Console.ReadLine();
+
+            if (string.IsNullOrWhiteSpace(input))
             {
-                Console.WriteLine("Invalid ID.");
+                Console.WriteLine("Cancelled.");
+                return;
+            }
+            var parts = input.Split(',', StringSplitOptions.RemoveEmptyEntries);
+            var ids = new List<int>();
+            foreach (var part in parts)
+            {
+                if (int.TryParse(part.Trim(), out var id))
+                    ids.Add(id);
+            }
+
+            if (ids.Count == 0)
+            {
+                Console.WriteLine("No valid IDs entered. Cancelled.");
                 return;
             }
 
-            if (!ConsoleHelpers.Confirm("This will permanently delete the character. Are you sure? [y/N]: "))
+            if (!ConsoleHelpers.Confirm($"This will permanently delete {ids.Count} character(s). Are you sure? [y/N]: "))
             {
                 Console.WriteLine("Cancelled.");
                 return;
             }
 
-            if (_characterService.DeleteCharacter(charId, out var err))
-                Console.WriteLine("Character deleted successfully.");
-            else
-                Console.WriteLine("Error: " + err);
+            var deleted = new List<int>();
+            var failed = new List<(int Id, string err)>();
+
+            foreach (var id in ids)
+            {
+                if (_characterService.DeleteCharacter(id, out var err))
+                    deleted.Add(id);
+                else
+                    failed.Add((id, err));
+            }
+
+            if (deleted.Count > 0)
+                Console.WriteLine($"Successfully deleted characters: {string.Join(", ", deleted)}");
+            if (failed.Count > 0)
+            {
+                Console.WriteLine("Failed to delete the following characters:");
+                foreach (var (id, err) in failed)
+                {
+                    Console.WriteLine($" - ID {id}: {err}");
+                }
+            }
         }
 
         private static void CreateTrait()
@@ -638,13 +742,15 @@ namespace ProjectSolamnia
 
             if (_characterService.CreateCharacter(newChar, selectedTraitIds, out var err))
             {
+                var saved = _characterService.GetCharacterById(newChar.Id)!;
+                _wisdomService.TopUpWisdom(saved);
                 Console.WriteLine("\n=== RANDOM CHARACTER ===");
                 Console.WriteLine($"{newChar.Name}, {newChar.Age} years old");
                 Console.WriteLine($"Rank: {newChar.Rank}, Status: {newChar.Status}");
 
                 Console.WriteLine("\nBase Attributes:");
-                Console.WriteLine($"DIP: {newChar.Diplomacy} | MAR: {newChar.Martial} | STE: {newChar.Stewardship}");
-                Console.WriteLine($"INT: {newChar.Intrigue} | LEA: {newChar.Learning} | PRO: {newChar.Prowess}");
+                Console.WriteLine($"DIP: {newChar.BaseDiplomacy} | MAR: {newChar.BaseMartial} | STE: {newChar.BaseStewardship}");
+                Console.WriteLine($"INT: {newChar.BaseIntrigue} | LEA: {newChar.BaseLearning} | PRO: {newChar.BaseProwess}");
 
                 Console.WriteLine("\nEffective Attributes:");
                 Console.WriteLine($"DIP: {EffectiveAttributeCalculator.EffectiveDiplomacy(newChar)}");

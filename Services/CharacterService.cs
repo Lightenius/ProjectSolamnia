@@ -131,14 +131,14 @@ namespace ProjectSolamnia
                     existingCharacter.Rank = character.Rank;
                     existingCharacter.Status = character.Status;
                     existingCharacter.AssignedHoldingId = character.AssignedHoldingId;
-                    existingCharacter.ActiveDuty = character.ActiveDuty;
+                    existingCharacter.Mission = character.Mission;
                     existingCharacter.Level = character.Level;
-                    existingCharacter.Diplomacy = character.Diplomacy;
-                    existingCharacter.Martial = character.Martial;
-                    existingCharacter.Stewardship = character.Stewardship;
-                    existingCharacter.Intrigue = character.Intrigue;
-                    existingCharacter.Learning = character.Learning;
-                    existingCharacter.Prowess = character.Prowess;
+                    existingCharacter.BaseDiplomacy = character.BaseDiplomacy;
+                    existingCharacter.BaseMartial = character.BaseMartial;
+                    existingCharacter.BaseStewardship = character.BaseStewardship;
+                    existingCharacter.BaseIntrigue = character.BaseIntrigue;
+                    existingCharacter.BaseLearning = character.BaseLearning;
+                    existingCharacter.BaseProwess = character.BaseProwess;
 
                     // Update traits
                     existingCharacter.CharacterTraits.Clear();
@@ -177,21 +177,20 @@ namespace ProjectSolamnia
         public bool DeleteCharacter(int characterId, out string errorMessage)
         {
             errorMessage = "";
-
-            var exists = _dbContext.Characters.AsNoTracking().Any(c => c.Id == characterId);
-            if (!exists)
-            {
-                errorMessage = "Character not found.";
-                return false;
-            }
-
             try
             {
-                // Use a stub entity to avoid fetching full data
-                var stub = new Character { Id = characterId };
-                _dbContext.Attach(stub);
-                _dbContext.Characters.Remove(stub);
-                _dbContext.SaveChanges();
+                var local = _dbContext.Characters.Local.FirstOrDefault(c => c.Id == characterId);
+                if (local != null) _dbContext.Entry(local).State = EntityState.Detached;
+
+                var affected = _dbContext.Characters
+                    .Where(c => c.Id == characterId)
+                    .ExecuteDelete();
+
+                if (affected == 0)
+                {
+                    errorMessage = "Character not found.";
+                    return false;
+                }
                 return true;
             }
             catch (Exception ex)
@@ -200,6 +199,7 @@ namespace ProjectSolamnia
                 return false;
             }
         }
+
 
         // Load and validate traits based on IDs
         private List<Trait>? LoadAndValidateTraits(List<int> traitIds, out string errorMessage)
@@ -247,68 +247,7 @@ namespace ProjectSolamnia
 
 
     }
-
-
-
-    // Effective attribute calculations considering traits and age effects
-    public class EffectiveAttributeCalculator
-    {
-        private static int GetWisdomBonus(Character character)
-        {
-            var baseAge = Math.Max(15, character.Age); // Ensure age is at least 15 to avoid log(0) or negative
-            return (int)Math.Floor(2 * Math.Log(character.Age - 14));
-        }
-
-        private static int GetProwessAgeModifier(Character character)
-        {
-            if (character.Age <= 25)
-                return 1;  // Young bonus
-            if (character.Age > 35)
-                return -(int)Math.Floor((character.Age - 35) / 8.0);  // Gradual decline
-            return 0;
-        }
-
-        public static int EffectiveDiplomacy(Character character)
-        {
-            return character.Diplomacy
-                   + character.CharacterTraits.Sum(ct => ct.Trait.BonusDiplomacy)
-                   + GetWisdomBonus(character);
-        }
-
-        public static int EffectiveMartial(Character character)
-        {
-            return character.Martial
-                   + character.CharacterTraits.Sum(ct => ct.Trait.BonusMartial)
-                   + GetWisdomBonus(character);
-        }
-
-        public static int EffectiveStewardship(Character character)
-        {
-            return character.Stewardship
-                   + character.CharacterTraits.Sum(ct => ct.Trait.BonusStewardship)
-                   + GetWisdomBonus(character);
-        }
-
-        public static int EffectiveIntrigue(Character character)
-        {
-            return character.Intrigue
-                   + character.CharacterTraits.Sum(ct => ct.Trait.BonusIntrigue)
-                   + GetWisdomBonus(character);
-        }
-
-        public static int EffectiveLearning(Character character)
-        {
-            return character.Learning
-                   + character.CharacterTraits.Sum(ct => ct.Trait.BonusLearning)
-                   + GetWisdomBonus(character);
-        }
-
-        public static int EffectiveProwess(Character character)
-        {
-            return character.Prowess
-                   + character.CharacterTraits.Sum(ct => ct.Trait.BonusProwess)
-                   + character.Level
-                   + GetProwessAgeModifier(character);
-        }
-    }
 }
+
+
+

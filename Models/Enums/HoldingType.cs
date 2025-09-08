@@ -1,5 +1,7 @@
 namespace ProjectSolamnia{}
 
+// Enum to represent different types of holdings
+
 public enum HoldingType
 {
     Castle,

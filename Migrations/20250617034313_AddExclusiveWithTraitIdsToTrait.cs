@@ -30,7 +30,7 @@ namespace ProjectSolamnia.Migrations
                 oldType: "TEXT");
 
             migrationBuilder.AddColumn<string>(
-                name: "Activeduty",
+                name: "Mission",
                 table: "Characters",
                 type: "TEXT",
                 nullable: false,
@@ -136,7 +136,7 @@ namespace ProjectSolamnia.Migrations
                 table: "Traits");
 
             migrationBuilder.DropColumn(
-                name: "Activeduty",
+                name: "Mission",
                 table: "Characters");
 
             migrationBuilder.DropColumn(

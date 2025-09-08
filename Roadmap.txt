@@ -1,6 +1,6 @@
 Sunucuyu çalıştırıp web sitesine girmek için ne yapmak gerekiyor?
 1. "dotnet run -s" komutu ile programı çalıştırın
-2. bir web tarayıcısında "localhost:5000/c/{id}" adresinde karakterleri, "localhost:5000/t/{id}" adresinde de traitleri görüntüleyebilirsiniz.
+2. bir web tarayıcısında "localhost:5000/c/{id}" adresinde karakterleri, "0/{id}" adresinde de traitleri görüntüleyebilirsiniz.
 3. Örnek "localhost:500/c/1" adresinde Thome'un sayfası bulunmaktadır.
 4. sunucuyu durdurmak için terminalde iki defa Ctrl + c tuşlarına basınız. (Kopyalar gibi)
 
@@ -16,16 +16,16 @@ Sunucuyu çalıştırıp web sitesine girmek için ne yapmak gerekiyor?
  [x] Traitlerin karakter statlarına etkilerinin backend’de hesaplanması ve uygulanması
 
 [-] 3. Karakter Ekleme/Güncelleme ve Yönetimi
- [-] Karakter CRUD işlemlerinin backend’de tamamlanması
+ [x] Karakter CRUD işlemlerinin backend’de tamamlanması
  [-] Trait atama ve güncelleme mekanizmasının kurallara uygun hale getirilmesi
  [x] Karakter durumlarının (Alive, MIA, KIA vb.) takip edilmesi ve veri tutarlılığının sağlanması
- [-] Trait bonuslarının karakterlere doğru yansıtılması
- [-] Karakterlerin görevler ve holdinglerle ilişkilendirilmesi (görevler backend’de yok, holdingler var)
+ [x] Trait bonuslarının karakterlere doğru yansıtılması
+ [x] Karakterlerin görevler ve holdinglerle ilişkilendirilmesi (görevler backend’de yok, holdingler var)
 
 [-] 4. Holding Sistemi
  [x] Holding modellerinin tasarlanması ve veritabanına eklenmesi
- [-] Holding CRUD işlemlerinin backend’de tamamlanması
- [-] Karakter-görev-garnizon ilişkilerinin kurulması (görev yok, garnizon modeli eksik)
+ [x] Holding CRUD işlemlerinin backend’de tamamlanması
+ [x] Karakter-görev-garnizon ilişkilerinin kurulması (görev yok, garnizon modeli eksik)
  [-] Holdinglerin savaş ve lojistik etkilerinin backend’de modellenmesi
 
 [ ] 5. Savaş Sistemi (proje bittikten sonra bakılacak)
@@ -35,3 +35,15 @@ Sunucuyu çalıştırıp web sitesine girmek için ne yapmak gerekiyor?
  [ ] Yeni kumandan traitlerinin savaş sistemiyle entegre edilmesi
  [ ] Komutanların görev ve savaş durumlarının backend tarafından takip edilmesi
  [ ] Savaş sonrası veritabanı güncellemelerinin sağlanması
+
+
+
+
+güncel durum için ek notlar
+check    - karakter silme fonksiyonu eksik 
+check    - karakter yaratılırken aynı trait 2 tekrar alınabiliyor olma ihtimali var
+- karakter yaratırken exclusive traitler denetlenmiyor
+- traitlerin exclusiveleri girilecek
+check    - trait silme fonksiyonu eklenecek
+check    - holding güncelleme yok
+check    - holding silme fonksiyonu eklenecek

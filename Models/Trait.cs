@@ -1,6 +1,6 @@
 namespace ProjectSolamnia {
 
-    //traitleri define eden sayfaı 
+    // Trait entity to represent various traits that can be assigned to characters
 
     public class Trait
     {

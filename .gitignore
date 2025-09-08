@@ -1,1 +1,7 @@
-bin/
+# Ignore compiled binary files
+*.dll
+*.exe
+*.pdb
+*.cache
+*.class
+*.so

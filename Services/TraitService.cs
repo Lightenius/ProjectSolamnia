@@ -1,131 +1,178 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using Microsoft.EntityFrameworkCore;
-using ProjectSolamnia;
 
-namespace ProjectSolamnia{}
-//buraya trait yaratımı kurallarını yazacağım
-
-public class TraitService
+namespace ProjectSolamnia
 {
-    private readonly ProjectSolamniaDbContext _dbContext;
-
-    public TraitService(ProjectSolamniaDbContext dbContext)
+    // Service to manage Trait entities and their exclusives
+    public class TraitService
     {
-        _dbContext = dbContext;
-    }
+        private readonly ProjectSolamniaDbContext _dbContext;
+
+        public TraitService(ProjectSolamniaDbContext dbContext)
+        {
+            _dbContext = dbContext;
+        }
 
         public List<Trait> GetAllTraits()
-    {
-        return _dbContext.Traits
-            .Include(t => t.ExclusiveWithTraits)
-            .ToList();
-    }
-
-    public Trait? GetTraitById(int id)
-    {
-        return _dbContext.Traits
-            .Include(t => t.ExclusiveWithTraits)
-            .FirstOrDefault(t => t.Id == id);
-    }
-
-    public void AddTrait(Trait trait)
-    {
-        _dbContext.Traits.Add(trait);
-        _dbContext.SaveChanges();
-    }
-
-    public void UpdateTrait(Trait trait)
-    {
-        _dbContext.Traits.Update(trait);
-        _dbContext.SaveChanges();
-    }
-
-// AddTraitWithExclusives trait eklerken aynı zamanda exclusive traitlerle ilişkisini de kurar
-// exclusiveWithTraitIds parametresi, traitin exclusive olduğu traitlerin ID'lerini alır
-    public void AddTraitWithExclusives(Trait trait, List<int> exclusiveWithTraitIds)
-    {
-        _dbContext.Traits.Add(trait);
-        _dbContext.SaveChanges();
-
-        foreach (var exclId in exclusiveWithTraitIds)
         {
-            var relation1 = new TraitExclusive
-            {
-                TraitId = trait.Id,
-                ExclusiveWithTraitId = exclId
-            };
-
-            var relation2 = new TraitExclusive
-            {
-                TraitId = exclId,
-                ExclusiveWithTraitId = trait.Id
-            };
-
-            _dbContext.TraitExclusives.Add(relation1);
-            _dbContext.TraitExclusives.Add(relation2);
+            return _dbContext.Traits
+                .Include(t => t.ExclusiveWithTraits)
+                .ToList();
         }
 
-        _dbContext.SaveChanges();
-    }
-
-    public void DeleteTrait(int traitId)
-    {
-        var trait = _dbContext.Traits
-            .Include(t => t.ExclusiveWithTraits)
-            .FirstOrDefault(t => t.Id == traitId);
-
-        if (trait != null)
+        public Trait? GetTraitById(int id)
         {
-            // Silmeden önce bağlı exclusive'leri temizle
-            _dbContext.TraitExclusives.RemoveRange(trait.ExclusiveWithTraits);
+            return _dbContext.Traits
+                .Include(t => t.ExclusiveWithTraits)
+                .FirstOrDefault(t => t.Id == id);
+        }
 
-            _dbContext.Traits.Remove(trait);
+        public void AddTrait(Trait trait)
+        {
+            _dbContext.Traits.Add(trait);
             _dbContext.SaveChanges();
         }
-    }
 
-
-    //Validate Traits bir karakterin sahip olduğu traitlere uyup uymadığını kontrol eder
-    // 3 personality trait 1 education trait olmazsa false verir
-    // ve exclusive olduğu trait olursa false verir
-    public bool ValidateTraits(List<Trait> traits, out string errorMessage)
-    {
-        errorMessage = "";
-
-        var personalityCount = traits.Count(t => t.Type == TraitType.Personality);
-        if (personalityCount != 3)
+        public bool UpdateTrait(Trait trait, List<int> exclusiveTraitIds, out string errorMessage)
         {
-            errorMessage = "A character must have 3 Personality traits.";
-            return false;
-        }
-        var educationCount = traits.Count(t => t.Type == TraitType.Education);
-        if (educationCount != 1)
-        {
-            errorMessage = "A character must have 1 Education traits.";
-            return false;
-        }
-        //exclusive trait kontrolü
-        //eğer traitlerin exclusive traiti varsa ve o traitler arasında varsa false verir
-        foreach (var trait in traits)
-        {
-            foreach (var exRelation in trait.ExclusiveWithTraits)
+            errorMessage = string.Empty;
+            try
             {
-                if (traits.Any(t => t.Id == exRelation.ExclusiveWithTraitId))
+                var existingTrait = _dbContext.Traits
+                    .Include(t => t.ExclusiveWithTraits)
+                    .FirstOrDefault(t => t.Id == trait.Id);
+
+                if (existingTrait == null)
                 {
-                    var ConflictingTrait = traits.First(t => t.Id == exRelation.ExclusiveWithTraitId);
-                    errorMessage = $"Trait '{trait.Name}' cannot coexist with '{ConflictingTrait.Name}'.";
+                    errorMessage = "Trait not found";
                     return false;
                 }
+
+                // Update basic properties
+                existingTrait.Name = trait.Name;
+                existingTrait.Description = trait.Description;
+                existingTrait.Type = trait.Type;
+                existingTrait.ImageUrl = trait.ImageUrl;
+                existingTrait.BonusDiplomacy = trait.BonusDiplomacy;
+                existingTrait.BonusMartial = trait.BonusMartial;
+                existingTrait.BonusStewardship = trait.BonusStewardship;
+                existingTrait.BonusIntrigue = trait.BonusIntrigue;
+                existingTrait.BonusLearning = trait.BonusLearning;
+                existingTrait.BonusProwess = trait.BonusProwess;
+
+                // Update exclusive traits (symmetric)
+                var currentExclusives = existingTrait.ExclusiveWithTraits.ToList();
+                var newExclusives = exclusiveTraitIds.Select(id => new TraitExclusive
+                {
+                    TraitId = trait.Id,
+                    ExclusiveWithTraitId = id
+                }).ToList();
+
+                foreach (var existing in currentExclusives)
+                {
+                    if (!newExclusives.Any(ne => ne.ExclusiveWithTraitId == existing.ExclusiveWithTraitId))
+                        _dbContext.TraitExclusives.Remove(existing);
+                }
+
+                foreach (var ne in newExclusives)
+                {
+                    if (!currentExclusives.Any(ce => ce.ExclusiveWithTraitId == ne.ExclusiveWithTraitId))
+                        _dbContext.TraitExclusives.Add(ne);
+                }
+
+                _dbContext.SaveChanges();
+                return true;
+            }
+            catch (Exception ex)
+            {
+                errorMessage = ex.Message;
+                return false;
             }
         }
-        return true;
-    }
 
-    public Dictionary<TraitType, List<Trait>> GetAllTraitsGroupedByType()
-    {
-        return _dbContext.Traits
-            .GroupBy(t => t.Type)
-            .ToDictionary(g => g.Key, g => g.ToList());
-    }
+        // AddTraitWithExclusives: eklerken exclusive ilişkilerini iki yönlü kur
+        public void AddTraitWithExclusives(Trait trait, List<int> exclusiveWithTraitIds)
+        {
+            _dbContext.Traits.Add(trait);
+            _dbContext.SaveChanges();
 
+            foreach (var exclId in exclusiveWithTraitIds)
+            {
+                var relation1 = new TraitExclusive { TraitId = trait.Id, ExclusiveWithTraitId = exclId };
+                var relation2 = new TraitExclusive { TraitId = exclId, ExclusiveWithTraitId = trait.Id };
+                _dbContext.TraitExclusives.Add(relation1);
+                _dbContext.TraitExclusives.Add(relation2);
+            }
+
+            _dbContext.SaveChanges();
+        }
+
+        public void DeleteTrait(int traitId)
+        {
+            var trait = _dbContext.Traits
+                .Include(t => t.ExclusiveWithTraits)
+                .FirstOrDefault(t => t.Id == traitId);
+
+            if (trait != null)
+            {
+                _dbContext.TraitExclusives.RemoveRange(trait.ExclusiveWithTraits);
+                _dbContext.Traits.Remove(trait);
+                _dbContext.SaveChanges();
+            }
+        }
+
+        // Exclusive conflict check
+        public bool ValidateTraits(List<Trait> traits, out string errorMessage)
+        {
+            errorMessage = "";
+
+            foreach (var trait in traits)
+            {
+                foreach (var exRelation in trait.ExclusiveWithTraits)
+                {
+                    if (traits.Any(t => t.Id == exRelation.ExclusiveWithTraitId))
+                    {
+                        var conflicting = traits.First(t => t.Id == exRelation.ExclusiveWithTraitId);
+                        errorMessage = $"Trait '{trait.Name}' cannot coexist with '{conflicting.Name}'.";
+                        return false;
+                    }
+                }
+            }
+            return true;
+        }
+
+        public Dictionary<TraitType, List<Trait>> GetAllTraitsGroupedByType()
+        {
+            return _dbContext.Traits
+                .GroupBy(t => t.Type)
+                .ToDictionary(g => g.Key, g => g.ToList());
+        }
+        public static string FormatTraitBrief(Trait t)
+        {
+            string typeLabel = t.Type switch
+            {
+                TraitType.Personality => "Personality Trait",
+                TraitType.Education => "Education Trait",
+                _ => "Trait"
+            };
+
+            var parts = new List<string>();
+            void Add(string name, int val)
+            {
+                if (val != 0) parts.Add($"{name} {(val > 0 ? "+" : "")}{val}");
+            }
+
+            Add("Diplomacy",  t.BonusDiplomacy);
+            Add("Martial",    t.BonusMartial);
+            Add("Stewardship",t.BonusStewardship);
+            Add("Intrigue",   t.BonusIntrigue);
+            Add("Learning",   t.BonusLearning);
+            Add("Prowess",    t.BonusProwess);
+
+            var bonuses = parts.Count > 0 ? string.Join(", ", parts) : "no attribute bonuses";
+            return $"{t.Name}: {typeLabel}; {bonuses}";
+        }
+    }
 }
-    

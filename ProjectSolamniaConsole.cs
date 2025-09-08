@@ -48,7 +48,7 @@ namespace ProjectSolamnia
             var services = new ServiceCollection();
 
             services.AddDbContext<ProjectSolamniaDbContext>(options =>
-                options.UseSqlite("Data Source=solamnia.db"));
+                options.UseSqlite("Data Source=data/projectprojectsolamnia.db"));
             services.AddScoped<TraitService>();
             services.AddScoped<CharacterService>();
             services.AddScoped<HoldingService>();

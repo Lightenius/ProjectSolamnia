@@ -141,7 +141,7 @@ namespace ProjectSolamnia
         }
         private void CreateBackup()
         {
-            const string dbPath = "solamnia.db";
+            const string dbPath = "data/projectsolamnia.db";
             if (File.Exists(dbPath))
             {
                 var ts = DateTime.Now.ToString("yyyyMMdd-HHmmssfff");

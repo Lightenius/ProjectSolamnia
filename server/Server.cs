@@ -53,7 +53,7 @@ public class SolamniaServer
         var services = new ServiceCollection();
 
         services.AddDbContext<ProjectSolamniaDbContext>(options =>
-            options.UseSqlite("Data Source=solamnia.db"));
+            options.UseSqlite("Data Source=data/projectsolamnia.db"));
         services.AddScoped<TraitService>();
         services.AddScoped<CharacterService>();
         services.AddScoped<HoldingService>();

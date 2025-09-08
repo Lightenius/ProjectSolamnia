@@ -21,11 +21,11 @@ namespace ProjectSolamnia
 
         public static void Main(string[] args)
         {
-            //      if (args.Length != 0 && args[0] == "-s")
-            //   {
-            //       Server.SolamniaServer.Run();
-            //   }
-            //                 Server.SolamniaServer.Run();
+                  if (args.Length != 0 && args[0] == "-s")
+               {
+                   Server.SolamniaServer.Run();
+               }
+                             Server.SolamniaServer.Run();
 
             //          Console.WriteLine("Project Solamnia Console Application");
             //          Console.WriteLine("Press any key to start...");
@@ -48,7 +48,7 @@ namespace ProjectSolamnia
             var services = new ServiceCollection();
 
             services.AddDbContext<ProjectSolamniaDbContext>(options =>
-                options.UseSqlite("Data Source=data/projectprojectsolamnia.db"));
+                options.UseSqlite("Data Source=data/projectsolamnia.db"));
             services.AddScoped<TraitService>();
             services.AddScoped<CharacterService>();
             services.AddScoped<HoldingService>();

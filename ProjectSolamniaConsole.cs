@@ -1,8 +1,6 @@
-using System.Text;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using ProjectSolamnia;
-using ProjectSolamnia.Migrations;
+
 
 namespace ProjectSolamnia
 {
@@ -16,6 +14,7 @@ namespace ProjectSolamnia
         private static HoldingService _holdingService = null!;
         private static CharacterGenerationService _charGenService = null!;
         private static WisdomService _wisdomService = null!;
+        private static DbReset _dbReset = null!;
 
 
 
@@ -55,6 +54,7 @@ namespace ProjectSolamnia
             services.AddScoped<HoldingService>();
             services.AddScoped<CharacterGenerationService>();
             services.AddScoped<WisdomService>();
+            services.AddScoped<DbReset>();
 
             provider = services.BuildServiceProvider();
 
@@ -67,6 +67,7 @@ namespace ProjectSolamnia
             _holdingService = scope.ServiceProvider.GetRequiredService<HoldingService>();
             _charGenService = scope.ServiceProvider.GetRequiredService<CharacterGenerationService>();
             _wisdomService = scope.ServiceProvider.GetRequiredService<WisdomService>();
+            _dbReset = scope.ServiceProvider.GetRequiredService<DbReset>();
         }
 
 
@@ -83,6 +84,7 @@ namespace ProjectSolamnia
                 Console.WriteLine("5. Manage Traits");
                 Console.WriteLine("6. Manage Holdings");
                 Console.WriteLine("7. Generate Random Character");
+                Console.WriteLine("8. Dev: DB Reset Menu (DANGER!)");
                 Console.WriteLine("0. Exit");
                 Console.Write("Your choice: ");
 
@@ -118,6 +120,10 @@ namespace ProjectSolamnia
                         GenerateRandomCharacter();
                         break;
 
+                    case "8":
+                        ResetMenu();
+                        break;
+
                     case "0":
                         Console.WriteLine("Exiting...");
                         return;
@@ -141,7 +147,6 @@ namespace ProjectSolamnia
                 Console.WriteLine($"#{c.Id} {c.Name}, Rank: {c.Rank}, Age: {c.Age}");
                 Console.WriteLine($" Status: {c.Status}, Holding: {c.AssignedHolding?.Name ?? "None"}, Mission: {c.Mission}");
                 Console.WriteLine($" Traits: {string.Join(", ", c.CharacterTraits.Select(t => t.Trait.Name))}");
-                _wisdomService.TopUpWisdom(c);
                 Console.WriteLine(
                     $"Attributes: \nDIP={EffectiveAttributeCalculator.EffectiveDiplomacy(c)} " +
                     $"\nMAR={EffectiveAttributeCalculator.EffectiveMartial(c)} " +
@@ -769,6 +774,58 @@ namespace ProjectSolamnia
                 Console.WriteLine("Error generating character: " + err);
             }
         }
+
+        private static void ResetMenu()
+        {
+            while (true)
+            {
+                Console.Clear();
+                Console.WriteLine("=== Dev Reset Menu ===");
+
+                Console.WriteLine("1) Reset CHARACTERS only");
+                Console.WriteLine("2) Reset TRAITS only");
+                Console.WriteLine("3) Reset HOLDINGS only");
+                Console.WriteLine("4) FULL reset");
+                Console.WriteLine("0) Back");
+                Console.Write("Choice: ");
+
+                var choice = Console.ReadLine();
+                Console.Clear();
+
+                switch (choice)
+                {
+                    case "1":
+                        _dbReset.ResetCharacters();
+                        Pause();
+                        break;
+                    case "2":
+                        _dbReset.ResetTraits();
+                        Pause();
+                        break;
+                    case "3":
+                        _dbReset.ResetHoldings();
+                        Pause();
+                        break;
+                    case "4":
+                        _dbReset.FullReset();
+                        Pause();
+                        break;
+                    case "0":
+                        return;
+                    default:
+                        Console.WriteLine("Invalid choice.");
+                        Pause();
+                        break;
+                }
+            }
+        }
+
+        private static void Pause()
+        {
+            Console.WriteLine("\nPress any key to continue...");
+            Console.ReadKey();
+        }
+
     
 
         // Helpers to read optional inputs

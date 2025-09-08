@@ -218,7 +218,7 @@ namespace ProjectSolamnia
             if (personalityCount != 3 || educationCount != 1)
             {
                 errorMessage = $"Invalid selection. Need exactly 3 Personality + 1 Education traits (you entered {personalityCount}+{educationCount}).";
-                return traits;
+                return null;
             }
 
             if (!_traitService.ValidateTraits(traits, out var exclusivityError))
